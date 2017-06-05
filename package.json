@@ -1,0 +1,25 @@
+{
+  "name": "stremio-adex-proto",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "truffle test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/Ivshti/stremio-adex-proto.git"
+  },
+  "author": "Ivo Georgiev <ivo@linvo.com> (http://ivogeorgiev.com)",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/Ivshti/stremio-adex-proto/issues"
+  },
+  "homepage": "https://github.com/Ivshti/stremio-adex-proto#readme",
+  "dependencies": {
+    "hyperlog": "^4.12.1"
+  }
+}
