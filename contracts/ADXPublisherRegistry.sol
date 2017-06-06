@@ -3,6 +3,7 @@ pragma solidity ^0.4.11;
 include "../zeppelin-solidity/contracts/ownership/Ownable.sol"
 
 contract ADXPublisherRegistry is Ownable {
+	// XXX: use typedef for id's
 
 	// Structure:
 	// Publishers
@@ -10,7 +11,7 @@ contract ADXPublisherRegistry is Ownable {
 	//			Properties (particular advertising spaces)
 	// Publishers are linked to Channels 
 	// Publishers are linked to Properties
-	// Channels are linked to Properties 
+	// Channels are linked to Properties
 	// everything is saved at the top-level and accessible by ID
 
 	mapping (address => Publisher) publishers;
@@ -36,6 +37,7 @@ contract ADXPublisherRegistry is Ownable {
 
 		mapping (bytes32 => Property) properties;
 
+		bytes32 publisherId;
 	}
 
 	struct Property {
@@ -43,27 +45,51 @@ contract ADXPublisherRegistry is Ownable {
 		string name;
 		string type; // XXX: could be enum, but this is more flexible
 
+		bytes32 channelId;
+		bytes32 publisherId;
+	}
+
+	modifier publisherExists
+	modifier publisherNotExists
+
+	modifier channelExists
+	modifier channelNotExists
+
+	modifier propertyExists
+	modifier propertyNotExists
+
+	function registerAsPublisher() publisherNotExists {
 
 	}
 
-	modifier publisher_exists
-	modifier publisher_not_exists
+	function updatePublisher() publisherExists {
 
-	modifier channel_exists
-	modifier channel_not_exists
+	}
 
-	modifier property_exists
-	modifier property_not_exists
+	function registerChannel() publisherExists {
 
-	function registerPublisher
+	}
 
-	function updatePublisher
 
-	function registerChannel
+	function registerProperty() publisherExists {
 
-	function registerProperty
+	}
 
-	function unregisterChannel
+	function unregisterChannel() publisherExists {
+		// MAKE SURE ALL PROPERTIES ARE UN-REGISTERED
 
-	function unregisterProperty
+	}
+
+	function unregisterProperty(bytes32 id) publisherExists {
+		Property prop = propertiesById[id];
+		if (! prop) throw;
+
+		delete propertiesById[id];
+		delete channelsById[prop.channelId].properties[id];
+		delete publishers[prop.publisherId].properties[id];
+	}
+
+	event PublisherRegistered();
+	event ChannelRegistered();
+	event PropertyRegistered();
 }
