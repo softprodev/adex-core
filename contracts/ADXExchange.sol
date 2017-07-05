@@ -10,8 +10,8 @@ contract ADXExchange is Ownable {
 	address advRegistry;
 
 	mapping (bytes32 => Bid) bidsById;
-	mapping (address => Bid) bidsByAdvertiser; // bids set out by advertisers
-	mapping (address => Bid) bidsByPublisher; // accepted by publisher
+	mapping (address => mapping (bytes32 => Bid)) bidsByAdvertiser; // bids set out by advertisers
+	mapping (address => mapping (bytes32 => Bid)) bidsByPublisher; // accepted by publisher
 
 	enum BidState { 
 		Open, 

@@ -33,7 +33,10 @@ contract ADXAdvertiserRegistry is Ownable {
 
 	struct AdUnit {
 		bytes32 id;
+		
 		bytes32 metaIpfsAddr; // ipfs addr of meta for this ad unit
+		
+		bytes32[] targeting; // any meta that may be relevant to the targeting, in an AdEx-specific format
 
 		mapping (bytes32 => Campaign) campaigns;
 	}

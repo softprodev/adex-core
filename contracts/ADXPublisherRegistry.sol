@@ -12,9 +12,9 @@ contract ADXPublisherRegistry is Ownable {
 	// Channels are linked to Properties
 	// everything is saved at the top-level and accessible by ID
 
-	mapping (address => Publisher) publishers;
-	mapping (bytes32 => Channel) channelsById;
-	mapping (bytes32 => Property) propertiesById;
+	mapping (address => Publisher) public publishers;
+	mapping (bytes32 => Channel) public channelsById;
+	mapping (bytes32 => Property) public propertiesById;
 
 	struct Publisher {
 		address publisherAddr;
