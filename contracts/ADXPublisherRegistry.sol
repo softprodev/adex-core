@@ -3,8 +3,6 @@ pragma solidity ^0.4.11;
 include "../zeppelin-solidity/contracts/ownership/Ownable.sol"
 
 contract ADXPublisherRegistry is Ownable {
-	// XXX: use typedef for id's
-
 	// Structure:
 	// Publishers
 	// 		Channels (e.g. website/app)
@@ -30,23 +28,31 @@ contract ADXPublisherRegistry is Ownable {
 	}
 
 
+
+	enum ChannelType { Web, Mobile, Desktop }
+
 	struct Channel {
 		bytes32 id;
 		string name;
-		string type; // XXX: could be enum, but this is more flexible
+		string description;
+		ChannelType type;
+		string subtype;
 
 		mapping (bytes32 => Property) properties;
 
 		bytes32 publisherId;
 	}
 
+	//struct PropertyType {  } // TODO
+
 	struct Property {
 		bytes32 id;
 		string name;
-		string type; // XXX: could be enum, but this is more flexible
+		string description;
+		//PropertyType type; // TODO
 
-		bytes32 channelId;
 		bytes32 publisherId;
+		bytes32 channelId;
 	}
 
 	modifier publisherExists

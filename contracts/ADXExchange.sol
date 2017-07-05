@@ -1,11 +1,10 @@
 pragma solidity ^0.4.11;
 
 include "../zeppelin-solidity/contracts/ownership/Ownable.sol"
+include "../zeppelin-solidity/contracts/SafeMath.sol"
 
 contract ADXExchange {
-	// XXX: use typedef for id's
 
-	
 	address token;
 	address pubRegistry;
 	address advRegistry;

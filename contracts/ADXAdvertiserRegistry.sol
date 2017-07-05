@@ -3,8 +3,6 @@ pragma solidity ^0.4.11;
 include "../zeppelin-solidity/contracts/ownership/Ownable.sol"
 
 contract ADXAdvertiserRegistry is Ownable {
-	// XXX: use typedef for id's
-
 	// Structure:
 	// Advertisers
 	// 		Campaigns - particular advertising campaigns
@@ -22,7 +20,22 @@ contract ADXAdvertiserRegistry is Ownable {
 		address advertiserAddr;
 		string name;
 		address walletAddr;
+	
+		mapping (bytes32 => Campaign) campaigns;
+		mapping (bytes32 => AdUnit) adunits;
+	}
 
+	struct Campaign {
+		bytes32 id;
+		string name;
+		mapping (bytes32 => AdUnit) adunits;
+	}
+
+	struct AdUnit {
+		bytes32 id;
+		bytes32 metaIpfsAddr; // ipfs addr of meta for this ad unit
+
+		mapping (bytes32 => Campaign) campaigns;
 	}
 
 	function registerAsAdvertiser() {
