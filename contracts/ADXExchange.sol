@@ -5,7 +5,10 @@ include "../zeppelin-solidity/contracts/ownership/Ownable.sol"
 contract ADXExchange {
 	// XXX: use typedef for id's
 
-	address tokenAddr = hex"";
+	
+	address token;
+	address pubRegistry;
+	address advRegistry;
 
 	mapping (address => Bid) bidsById;
 	mapping (address => Bid) bidsByAdvertiser; // bids set out by advertisers
@@ -13,8 +16,7 @@ contract ADXExchange {
 
 	enum BidState { 
 		Open, 
-		Accepted, 
-		Executing, // in progress states
+		Accepted, // in progress
 
 		// the following states MUST unlock the ADX amount (return to advertiser)
 		Expired, Canceled, // fail states
@@ -31,6 +33,7 @@ contract ADXExchange {
 		// Links on advertiser side
 		address advertiser;
 		bytes32 campaign;
+		address advertiserWallet;
 
 		// Links on publisher side
 		address publisher;
@@ -38,7 +41,7 @@ contract ADXExchange {
 		bytes32 adProperty;
 		address publisherWallet;
 
-		uint acceptedDate; // whne it's accepted by a publisher
+		uint acceptedDate; // when was it accepted by a publisher
 
 		// Requirements
 		uint requiredGoals;
@@ -47,7 +50,7 @@ contract ADXExchange {
 
 		// margin of error against the state channel (append-only stats DB)
 		// a min threshold for that is good, but better protect the users from themselves in the dapp rather than the SC
-		uint requiredMarginOfError;
+		uint acceptableMarginOfError;
 
 		// Results
 		uint achievedGoals;
@@ -56,17 +59,10 @@ contract ADXExchange {
 	modifier onlyRegisteredAdvertiser
 	modifier onlyRegisteredPublisher
 
-	function changeTokenAddr() onlyOwner {
-
-	}
-
-
-	function changePubRegistryAddr() onlyOwner {
-		// TODO
-	}
-
-	function changeAdvRegistryAddr() onlyOwner {
-		// TODO
+	function setAddresses(address _token, address _pubRegistry, address _advRegistry) onlyOwner {
+		token = _token;
+		pubRegistry = _pubRegistry;
+		advRegistry = _advRegistry;
 	}
 
 	//
@@ -98,5 +94,17 @@ contract ADXExchange {
 
 	}
 
+	function revokeAndRefundBid(Bid bid, BidState newState) internal {
+		// evaluate if existing state is sane (possible to refund)
+
+		// set bid state
+		// evaluate if newState is Canceled or Expired
+
+		// allow newState to be Canceled only if current state is Open
+		// allow newState to be Expired only if current state is Accepted
+
+		bid.state = newState;
+		token.transfer(bid.advertiserWallet, bid.amount);
+	}
 }
 
