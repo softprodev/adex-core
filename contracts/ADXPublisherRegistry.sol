@@ -1,6 +1,6 @@
 pragma solidity ^0.4.11;
 
-include "../zeppelin-solidity/contracts/ownership/Ownable.sol"
+import "../zeppelin-solidity/contracts/ownership/Ownable.sol";
 
 contract ADXPublisherRegistry is Ownable {
 	// Structure:
@@ -27,20 +27,18 @@ contract ADXPublisherRegistry is Ownable {
 		mapping (bytes32 => Property) properties;
 	}
 
-
-
-	enum ChannelType { Web, Mobile, Desktop }
+	//enum ChannelType { Web, Mobile, Desktop }
 
 	struct Channel {
 		bytes32 id;
 		string name;
 		string description;
-		ChannelType type;
+		//ChannelType type;
 		string subtype;
 
 		mapping (bytes32 => Property) properties;
 
-		bytes32 publisherId;
+		address publisherAddr;
 	}
 
 	//struct PropertyType {  } // TODO
@@ -51,18 +49,22 @@ contract ADXPublisherRegistry is Ownable {
 		string description;
 		//PropertyType type; // TODO
 
-		bytes32 publisherId;
+		address publisherAddr;
 		bytes32 channelId;
 	}
 
-	modifier publisherExists
-	modifier publisherNotExists
+	modifier publisherExists() { if (publishers[msg.sender].publisherAddr == 0) throw; _; }
+	modifier publisherNotExists() { if (publishers[msg.sender].publisherAddr != 0) throw; _; }
 
-	modifier channelExists
-	modifier channelNotExists
+	// modifier channelExists() { if (! channelsById[which].id) throw; _; }
+	// modifier channelNotExists() { if (channelsById[which].id) throw; _; }
 
-	modifier propertyExists
-	modifier propertyNotExists
+	// modifier propertyExists() { if (! propertiesById[which].id) throw; _; }
+	// modifier propertyNotExists() { if (propertiesById[which].id) throw; _; }
+
+	function isRegistered(address who) external returns (bool) {
+		return publishers[who].publisherAddr != 0;
+	}
 
 	function registerAsPublisher() publisherNotExists {
 
@@ -88,14 +90,14 @@ contract ADXPublisherRegistry is Ownable {
 
 	function unregisterProperty(bytes32 id) publisherExists {
 		Property prop = propertiesById[id];
-		if (! prop) throw;
+		if (prop.id == 0) throw;
 
 		delete propertiesById[id];
 		delete channelsById[prop.channelId].properties[id];
-		delete publishers[prop.publisherId].properties[id];
+		delete publishers[prop.publisherAddr].properties[id];
 	}
 
-	event PublisherRegistered();
-	event ChannelRegistered();
-	event PropertyRegistered();
+	// event PublisherRegistered();
+	// event ChannelRegistered();
+	// event PropertyRegistered();
 }

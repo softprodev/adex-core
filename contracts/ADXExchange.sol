@@ -1,15 +1,15 @@
 pragma solidity ^0.4.11;
 
-include "../zeppelin-solidity/contracts/ownership/Ownable.sol"
-include "../zeppelin-solidity/contracts/SafeMath.sol"
+import "../zeppelin-solidity/contracts/ownership/Ownable.sol";
+import "../zeppelin-solidity/contracts/SafeMath.sol";
 
-contract ADXExchange {
+contract ADXExchange is Ownable {
 
 	address token;
 	address pubRegistry;
 	address advRegistry;
 
-	mapping (address => Bid) bidsById;
+	mapping (bytes32 => Bid) bidsById;
 	mapping (address => Bid) bidsByAdvertiser; // bids set out by advertisers
 	mapping (address => Bid) bidsByPublisher; // accepted by publisher
 
@@ -55,8 +55,14 @@ contract ADXExchange {
 		uint achievedGoals;
 	}
 
-	modifier onlyRegisteredAdvertiser
-	modifier onlyRegisteredPublisher
+	// XXX fixme
+	//modifier onlyRegisteredAdvertiser() { if (!advRegistry.isRegistered(msg.sender)) throw; _; }
+	//modifier onlyRegisteredPublisher() { if (!pubRegistry.isRegistered(msg.sender)) throw; _;  }
+	modifier onlyRegisteredAdvertiser() { _; }
+	modifier onlyRegisteredPublisher() { _; }
+
+	modifier onlyBidOwner(bytes32 bidId) { if (msg.sender != bidsById[bidId].advertiser) throw; _; }
+	modifier existingBid(bytes32 bidId) { if (bidsById[bidId].id == 0) throw; _; }
 
 	function setAddresses(address _token, address _pubRegistry, address _advRegistry) onlyOwner {
 		token = _token;
@@ -74,22 +80,35 @@ contract ADXExchange {
 		// if that succeeds, we passed that THIS amount of ADX has been locked in the bid
 	}
 
-	function cancelBid(bytes32 bidId) onlyRegisteredAdvertiser onlyBidOwner(bidId) existingBid {
+	function cancelBid(bytes32 _bidId) 
+		onlyRegisteredAdvertiser
+		onlyBidOwner(_bidId)
+		existingBid(_bidId) 
+	{
 		
 	}
 
-	function acceptBid() onlyRegisteredPublisher existingBid openBid {
+	function acceptBid(bytes32 _bidId) 
+		onlyRegisteredPublisher 
+		existingBid(_bidId) 
+		//openBid(bidId) 
+	{
 
 	}
 
 	// both publisher and advertiser have to call this for a bid to be considered verified; it has to be within margin of error
-	function verifyBid() existingBid {
+	function verifyBid(bytes32 _bidId) 
+		existingBid(_bidId)
+	{
 
 	}
 
 	// This can be done if a bid is accepted, but expired
 	// This is essentially the protection from never settling on verification, or from publisher not executing the bid within a reasonable time
-	function refundBid() onlyRegisteredAdvertiser onlyBidOwner {
+	function refundBid(bytes32 _bidId)
+		onlyRegisteredAdvertiser
+		onlyBidOwner(_bidId)
+	{
 
 	}
 
@@ -103,7 +122,7 @@ contract ADXExchange {
 		// allow newState to be Expired only if current state is Accepted
 
 		bid.state = newState;
-		token.transfer(bid.advertiserWallet, bid.amount);
+		//token.transfer(bid.advertiserWallet, bid.amount);
 	}
 }
 
