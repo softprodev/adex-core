@@ -181,4 +181,4 @@ ADXT would be a smart contract, part of the AdEx Core, and it would allow exchan
 
 # AdEx Fund
 
-The AdEx Fund is a pool of tokens used by the AdEx Network organization to sell to advertisers at the moment of their registration and usage of the platform, therefore giving them [easy access to ADX tokens](drake meme)
+The AdEx Fund is a pool of tokens used by the AdEx Network organization to sell to advertisers at the moment of their registration and usage of the platform, therefore giving them [easy access to ADX tokens](https://imgflip.com/i/1rwbzf)
