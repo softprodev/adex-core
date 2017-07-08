@@ -77,6 +77,16 @@ As with the publisher portal, advertisers will be encouraged to self-host the po
 
 
 
+# User targeting
+
+The user targeting algorithm is public and is ran entirely on the client side, so as to keep personal user data only in the user's browser. This has the added penalty of having to pull information about multiple ads direclty on the client side, and then make the selection. We believe this is not an issue: since bids are accepted manually, and publishers/advertisers have control over who they work with, we expect no more than couple of hundred of different ads (at most!) are going to be in contension for one impression. Pulling targeting metadata about, for example, 300 different ad units, is not a challenging task for modern internet conenctions (even slow ones), and the selection algorithm itself is not anything heavy either.
+
+Of course, the ad selection algorithm is a yet another thing that can be customized in AdEx, besides giving you control of which bids you accept in the first place.
+
+To keep the personal data of the user, we intend using `localStorage`. Data kept in `localStorage` is sandboxed to domains, which means we're going to need a central domain (e.g. `user.adex.network`) where the `localStorage` data is going to be sandboxed to. This is a central component, but `localStorage` data is not accessible on the server-side of `user.adex.network`, nor from anywhere outside the user's own browser. The domain is merely used to confine this data to a sandbox that will be readable by the SDK any time an ad selection needs to be made.
+
+[visual info of what is readable from where]
+
 # The AdEx Profile
 
 The AdEx profile is a client-side dapp (HTML5, in browser) that allows users to change their preferences regarding advertising and essentially describe their interests by themselves. To avoid the need for users to have ETH wallets, users will be completely passive, only reading from the ethereum network. In order for them to change their taste preferences (or to log a conversion action), they would have to go through the publisher, who'd be responsible for paying the gas.
@@ -135,6 +145,7 @@ For now, off-chain data is kept in a peer-to-peer multi-master-replication datab
 Because of the potential inconsistency with that kind of off-chain DBs, the AdEx core will allow certain margin of error for archieving the overall goals (accepted bids), so as to still allow verification of the goal achievement even if some small data points are lost. The advertiser will be able to set the accepted margin of error, and to prevent fraud by exploiting the limits of the margin of error, the exact number will be logged to the blockchain - if an advertiser decides that a publisher is consistently arriving at the upper-bound of the allowed margin of error, they can opt out of working with them.
 
 
+
 # User verification
 
 To prevent the possibility of publishers performing sybil attacks on the network by registering multiple users and logging conversion goals, there will be an algorithm that tracks the possible legitimacy of every user. Once user data is written to ADXUserRegistry by publishers upon achieving conversion goals, users would be able to gain point towards their legitimacy rating.
@@ -152,6 +163,7 @@ But most importantly, the AdEx Network in designed to work with conversion goals
 This ensures a model that may be slow to generate revenue, but discourages any possibility of ad fraud.
 
 It also gives advertisers an option of how much they want to verify legitimacy, therefore balancing between anti-fraud measures and the speed that they achieve results.
+
 
 # Full process walk-through
 
