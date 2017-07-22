@@ -13,8 +13,6 @@ contract ADXExchange is Ownable {
 	mapping (address => mapping (bytes32 => Bid)) bidsByAdvertiser; // bids set out by advertisers
 	mapping (address => mapping (bytes32 => Bid)) bidsByPublisher; // accepted by publisher
 
-	uint execTimeHardCap = 60 days; // if a bid is not executed within 60 days, it can be canceled to unlock the ADX
-
 	enum BidState { 
 		Open, 
 		Accepted, // in progress
@@ -46,7 +44,8 @@ contract ADXExchange is Ownable {
 
 		// Requirements
 		uint requiredGoals;
-		uint requiredExecTime; // if the bid is not executed within that time, it can be canceled
+		uint requiredAcceptTime; // XXX: do we need this? advertisers can give up the bids themslevs is state is Open
+		uint requiredExecTime;
 
 		// margin of error against the state channel (append-only stats DB)
 		// a min threshold for that is good, but better protect the users from themselves in the dapp rather than the SC

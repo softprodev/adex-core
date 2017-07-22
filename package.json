@@ -22,5 +22,8 @@
   "dependencies": {
     "hyperlog": "^4.12.1",
     "ipfs": "^0.24.1"
+  },
+  "devDependencies": {
+    "truffle": "*"
   }
 }
