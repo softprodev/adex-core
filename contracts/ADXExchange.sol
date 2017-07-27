@@ -53,6 +53,9 @@ contract ADXExchange is Ownable {
 
 		// Results
 		uint achievedGoals;
+
+		// Additional payload
+		bytes32[] payload;
 	}
 
 	// XXX fixme
