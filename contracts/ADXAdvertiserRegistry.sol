@@ -73,7 +73,7 @@ contract ADXAdvertiserRegistry is Ownable {
 	}
 
 
-	// event AdvertiserRegistered();
-	// event CampaignRegistered();
-	// event AdUnitRegistered();
+	// event LogAdvertiserRegistered();
+	// event LogCampaignRegistered();
+	// event LogAdUnitRegistered();
 }

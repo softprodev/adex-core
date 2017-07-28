@@ -97,7 +97,7 @@ contract ADXPublisherRegistry is Ownable {
 		delete publishers[prop.publisherAddr].properties[id];
 	}
 
-	// event PublisherRegistered();
-	// event ChannelRegistered();
-	// event PropertyRegistered();
+	// event LogPublisherRegistered();
+	// event LogChannelRegistered();
+	// event LogPropertyRegistered();
 }
