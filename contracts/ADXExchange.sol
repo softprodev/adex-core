@@ -2,8 +2,9 @@ pragma solidity ^0.4.11;
 
 import "../zeppelin-solidity/contracts/ownership/Ownable.sol";
 import "../zeppelin-solidity/contracts/math/SafeMath.sol";
+import "./helpers/Drainable.sol";
 
-contract ADXExchange is Ownable {
+contract ADXExchange is Ownable, Drainable {
 
 	address token;
 	address pubRegistry;
@@ -67,6 +68,8 @@ contract ADXExchange is Ownable {
 	modifier onlyBidOwner(bytes32 bidId) { if (msg.sender != bidsById[bidId].advertiser) throw; _; }
 	modifier existingBid(bytes32 bidId) { if (bidsById[bidId].id == 0) throw; _; }
 
+	// Functions
+
 	function setAddresses(address _token, address _pubRegistry, address _advRegistry) onlyOwner {
 		token = _token;
 		pubRegistry = _pubRegistry;
@@ -127,5 +130,11 @@ contract ADXExchange is Ownable {
 		bid.state = newState;
 		//token.transfer(bid.advertiserWallet, bid.amount);
 	}
+
+	event LogBidOpened(bytes32 _bidId);
+	event LogBidAccepted(bytes32 _bidId);
+	event LogBidCanceled(bytes32 _bidId);
+	event LogBidExpired(bytes32 _bidId);
+	event LogBidCompleted(bytes32 _bidId);
 }
 

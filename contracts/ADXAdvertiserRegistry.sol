@@ -1,8 +1,9 @@
 pragma solidity ^0.4.11;
 
 import "../zeppelin-solidity/contracts/ownership/Ownable.sol";
+import "./helpers/Drainable.sol";
 
-contract ADXAdvertiserRegistry is Ownable {
+contract ADXAdvertiserRegistry is Ownable, Drainable {
 	// Structure:
 	// Advertisers
 	// 		Campaigns - particular advertising campaigns
@@ -47,19 +48,22 @@ contract ADXAdvertiserRegistry is Ownable {
 		_;
 	}
 
-	function isRegistered(address who) external returns (bool)
+	function isRegistered(address who)
+		external 
+		constant
+		returns (bool)
 	{
 		var adv = advertisers[who];
 		return adv.advertiserAddr != 0;
 	}
 
 	// can be called over and over to update the data
-	function registerAsAdvertiser(string _name, address _wallet)
+	function registerAsAdvertiser(string _name, address _wallet) external
 	{
 		var adv = advertisers[msg.sender];
 		adv.advertiserAddr = msg.sender;
 		adv.name = _name;
-		adv.wallet = _wallet;
+		adv.walletAddr = _wallet;
 	}
 
 	function registerCampaign() onlyRegisteredAdvertiser {

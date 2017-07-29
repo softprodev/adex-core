@@ -1,8 +1,9 @@
 pragma solidity ^0.4.11;
 
 import "../zeppelin-solidity/contracts/ownership/Ownable.sol";
+import "./helpers/Drainable.sol";
 
-contract ADXPublisherRegistry is Ownable {
+contract ADXPublisherRegistry is Ownable, Drainable {
 	// Structure:
 	// Publishers
 	// 		Channels (e.g. website/app)
@@ -62,7 +63,11 @@ contract ADXPublisherRegistry is Ownable {
 	// modifier propertyExists() { if (! propertiesById[which].id) throw; _; }
 	// modifier propertyNotExists() { if (propertiesById[which].id) throw; _; }
 
-	function isRegistered(address who) external returns (bool) {
+	function isRegistered(address who)
+		external
+		constant 
+		returns (bool)
+	{
 		return publishers[who].publisherAddr != 0;
 	}
 
@@ -88,7 +93,10 @@ contract ADXPublisherRegistry is Ownable {
 
 	}
 
-	function unregisterProperty(bytes32 id) publisherExists {
+	function unregisterProperty(bytes32 id) 
+		publisherExists 
+		external
+	{
 		Property prop = propertiesById[id];
 		if (prop.id == 0) throw;
 
