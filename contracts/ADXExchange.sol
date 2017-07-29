@@ -26,7 +26,7 @@ contract ADXExchange is Ownable {
 		bytes32 id;
 		BidState state;
 
-		// ADX amount
+		// ADX reward amount
 		uint amount;
 
 		// Links on advertiser side
@@ -43,8 +43,8 @@ contract ADXExchange is Ownable {
 		uint acceptedDate; // when was it accepted by a publisher
 
 		// Requirements
-		uint requiredGoals;
-		uint requiredAcceptTime; // XXX: do we need this? advertisers can give up the bids themslevs is state is Open
+		//RequirementType type;
+		uint requiredPoints; // how many impressions/clicks/conversions have to be done
 		uint requiredExecTime;
 
 		// margin of error against the state channel (append-only stats DB)
@@ -52,7 +52,7 @@ contract ADXExchange is Ownable {
 		uint acceptableMarginOfError;
 
 		// Results
-		uint achievedGoals;
+		uint achievedPoints;
 
 		// Additional payload
 		bytes32[] payload;
