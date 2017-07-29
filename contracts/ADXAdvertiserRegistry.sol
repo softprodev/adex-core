@@ -1,4 +1,4 @@
-pragma solidity ^0.4.11;
+pragma solidity ^0.4.13;
 
 import "../zeppelin-solidity/contracts/ownership/Ownable.sol";
 import "./helpers/Drainable.sol";
@@ -44,7 +44,7 @@ contract ADXAdvertiserRegistry is Ownable, Drainable {
 
 	modifier onlyRegisteredAdvertiser() {
 		var adv = advertisers[msg.sender];
-		if (adv.advertiserAddr == 0) throw;
+		require(adv.advertiserAddr != 0);
 		_;
 	}
 

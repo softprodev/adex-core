@@ -1,4 +1,4 @@
-pragma solidity ^0.4.11;
+pragma solidity ^0.4.13;
 
 import "../zeppelin-solidity/contracts/ownership/Ownable.sol";
 import "../zeppelin-solidity/contracts/math/SafeMath.sol";
@@ -60,13 +60,13 @@ contract ADXExchange is Ownable, Drainable {
 	}
 
 	// XXX fixme
-	//modifier onlyRegisteredAdvertiser() { if (!advRegistry.isRegistered(msg.sender)) throw; _; }
-	//modifier onlyRegisteredPublisher() { if (!pubRegistry.isRegistered(msg.sender)) throw; _;  }
+	//modifier onlyRegisteredAdvertiser() { require(advRegistry.isRegistered(msg.sender)); _; }
+	//modifier onlyRegisteredPublisher() { require(pubRegistry.isRegistered(msg.sender)); _;  }
 	modifier onlyRegisteredAdvertiser() { _; }
 	modifier onlyRegisteredPublisher() { _; }
 
-	modifier onlyBidOwner(bytes32 bidId) { if (msg.sender != bidsById[bidId].advertiser) throw; _; }
-	modifier existingBid(bytes32 bidId) { if (bidsById[bidId].id == 0) throw; _; }
+	modifier onlyBidOwner(bytes32 bidId) { require(msg.sender == bidsById[bidId].advertiser); _; }
+	modifier existingBid(bytes32 bidId) { require(bidsById[bidId].id != 0); _; }
 
 	// Functions
 

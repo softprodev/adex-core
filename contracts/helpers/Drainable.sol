@@ -1,4 +1,4 @@
-pragma solidity ^0.4.11;
+pragma solidity ^0.4.13;
 
 import "../../zeppelin-solidity/contracts/ownership/Ownable.sol";
 import "../../zeppelin-solidity/contracts/token/ERC20.sol";
@@ -15,6 +15,6 @@ contract Drainable is Ownable {
 	function withdrawEther() 
 		onlyOwner
 	{
-	    if (!msg.sender.send(this.balance)) throw;
+	    require(msg.sender.send(this.balance));
 	}
 }

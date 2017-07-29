@@ -1,4 +1,4 @@
-pragma solidity ^0.4.11;
+pragma solidity ^0.4.13;
 
 import "../zeppelin-solidity/contracts/ownership/Ownable.sol";
 import "./helpers/Drainable.sol";
@@ -54,14 +54,14 @@ contract ADXPublisherRegistry is Ownable, Drainable {
 		bytes32 channelId;
 	}
 
-	modifier publisherExists() { if (publishers[msg.sender].publisherAddr == 0) throw; _; }
-	modifier publisherNotExists() { if (publishers[msg.sender].publisherAddr != 0) throw; _; }
+	modifier publisherExists() { require(publishers[msg.sender].publisherAddr != 0); _; }
+	modifier publisherNotExists() { require(publishers[msg.sender].publisherAddr == 0); _; }
 
-	// modifier channelExists() { if (! channelsById[which].id) throw; _; }
-	// modifier channelNotExists() { if (channelsById[which].id) throw; _; }
+	// modifier channelExists() { require(channelsById[which].id); _; }
+	// modifier channelNotExists() { require(!channelsById[which].id); _; }
 
-	// modifier propertyExists() { if (! propertiesById[which].id) throw; _; }
-	// modifier propertyNotExists() { if (propertiesById[which].id) throw; _; }
+	// modifier propertyExists() { require(propertiesById[which].id); _; }
+	// modifier propertyNotExists() { require(!propertiesById[which].id); _; }
 
 	function isRegistered(address who)
 		external
@@ -98,7 +98,7 @@ contract ADXPublisherRegistry is Ownable, Drainable {
 		external
 	{
 		Property prop = propertiesById[id];
-		if (prop.id == 0) throw;
+		require(prop.id != 0);
 
 		delete propertiesById[id];
 		delete channelsById[prop.channelId].properties[id];
