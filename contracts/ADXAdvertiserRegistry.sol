@@ -47,13 +47,19 @@ contract ADXAdvertiserRegistry is Ownable {
 		_;
 	}
 
-	function isRegistered(address who) external returns (bool) {
+	function isRegistered(address who) external returns (bool)
+	{
 		var adv = advertisers[who];
 		return adv.advertiserAddr != 0;
 	}
 
-	function registerAsAdvertiser() {
-
+	// can be called over and over to update the data
+	function registerAsAdvertiser(string _name, address _wallet)
+	{
+		var adv = advertisers[msg.sender];
+		adv.advertiserAddr = msg.sender;
+		adv.name = _name;
+		adv.wallet = _wallet;
 	}
 
 	function registerCampaign() onlyRegisteredAdvertiser {
