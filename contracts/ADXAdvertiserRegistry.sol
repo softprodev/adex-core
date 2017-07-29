@@ -10,36 +10,42 @@ contract ADXAdvertiserRegistry is Ownable, Drainable {
 	//		Ad Units - particular ad units 
 	// Advertisers are linked to Campaigns
 	// Advertisers are linked to Ad Units
-	// Campaigns are linked to Ad units, and one ad unit can be re-used in many campaigns
-	// Ad units are linked to Campaigns, and one campaign can be linked to multiple ad units
+	// Ad units are linked to Campaigns, and one ad unit can be linked to multiple campaigns
+
+	uint public campaignsCount;
+	uint public adUnitsCount;
 
 	mapping (address => Advertiser) public advertisers;
-	mapping (bytes32 => Campaign) public campaigns;
-	mapping (bytes32 => AdUnit) public adunits;
+	mapping (uint => Campaign) public campaigns;
+	mapping (uint => AdUnit) public adunits;
 
 	struct Advertiser {		
 		address advertiserAddr;
 		string name;
 		address walletAddr;
+		string meta;
 	
-		mapping (bytes32 => Campaign) campaigns;
-		mapping (bytes32 => AdUnit) adunits;
+		mapping (uint => Campaign) campaigns;
+		mapping (uint => AdUnit) adunits;
 	}
 
 	struct Campaign {
-		bytes32 id;
+		uint id;
+		address owner; // the advertiser who owns the campaign
+
 		string name;
-		mapping (bytes32 => AdUnit) adunits;
+		string meta;
 	}
 
 	struct AdUnit {
-		bytes32 id;
-		
+		uint id;
+		address owner;  // the advertiser who owns the ad unit
+
 		bytes32 metaIpfsAddr; // ipfs addr of meta for this ad unit
 		
 		bytes32[] targeting; // any meta that may be relevant to the targeting, in an AdEx-specific format
 
-		mapping (bytes32 => Campaign) campaigns;
+		uint[] campaignIds;
 	}
 
 	modifier onlyRegisteredAdvertiser() {
@@ -58,32 +64,102 @@ contract ADXAdvertiserRegistry is Ownable, Drainable {
 	}
 
 	// can be called over and over to update the data
-	function registerAsAdvertiser(string _name, address _wallet) external
+	// XXX consider entrance barrier, such as locking in some ADX
+	function registerAsAdvertiser(string _name, address _wallet, string _meta)
+		external
 	{
+		require(_wallet != 0);
+
 		var adv = advertisers[msg.sender];
 		adv.advertiserAddr = msg.sender;
 		adv.name = _name;
 		adv.walletAddr = _wallet;
+		adv.meta = _meta;
 	}
 
-	function registerCampaign() onlyRegisteredAdvertiser {
+	// use _id = 0 to create a new campaign, otherwise modify existing
+	function registerCampaign(uint _id, string _name, string _meta)
+		onlyRegisteredAdvertiser
+	{
+		Campaign campaign;
+
+		if (_id == 0) {
+			campaignsCount++;
+			campaign = campaigns[campaignsCount];
+			campaign.id = campaignsCount;
+			campaign.owner = msg.sender;
+		}
+
+		require(campaign.owner == msg.sender);
+
+		campaign.name = _name;
+		campaign.meta = _meta;
+
+		advertisers[msg.sender].campaigns[campaign.id] = campaign;
+
+		if (_id == 0) LogCampaignRegistered(campaign.id, campaign.name);
+		else LogCampaignModified(campaign.id, campaign.name);
+	}
+
+	// use _id = 0 to create a new ad unit, otherwise modify existing
+	function registerAdUnit(uint _id, bytes32 _metaIpfsAddr, bytes32[] _targeting, uint[] _campaignIds)
+		onlyRegisteredAdvertiser 
+	{
+		AdUnit unit;
+
+		if (_id == 0) {
+			adUnitsCount++;
+			unit = adunits[adUnitsCount];
+			unit.id = adUnitsCount;
+			unit.owner = msg.sender;
+		}
+
+		require(unit.owner == msg.sender);
+
+		unit.metaIpfsAddr = _metaIpfsAddr;
+		unit.targeting = _targeting;
+		unit.campaignIds = _campaignIds;
+
+		advertisers[msg.sender].adunits[unit.id] = unit;
+
+		if (_id == 0) LogAdUnitRegistered(unit.id, unit.metaIpfsAddr);
+		else LogAdUnitModified(unit.id, unit.metaIpfsAddr);
+	}
+
+	// NOTE
+	// There's no real point of un-registering campaigns and ad units 
+	// Campaigns need to be kept anyway, as well as ad units
+	// END NOTE
+
+	// Constant functions
+	function getMyCampaigns()
+		onlyRegisteredAdvertiser
+		constant
+	{
 
 	}
 
-	function unregisterCampaign() onlyRegisteredAdvertiser {
+	function getMyAdUnits()
+		onlyRegisteredAdvertiser
+		constant
+	{
 
 	}
 
-	function registerAdUnit() onlyRegisteredAdvertiser {
+	function getMyAdUnitsForCampaign()
+		onlyRegisteredAdvertiser
+		constant
+	{
 
 	}
 
-	function unregisterAdUnit() onlyRegisteredAdvertiser {
-
-	}
-
-
+	// Events
 	// event LogAdvertiserRegistered();
-	// event LogCampaignRegistered();
-	// event LogAdUnitRegistered();
+	// event LogAdvertiserModified();
+	event LogCampaignRegistered(uint id, string name);
+	event LogCampaignModified(uint id, string name);
+
+	event LogAdUnitRegistered(uint id, bytes32 metaIpfsAddr);
+	event LogAdUnitModified(uint id, bytes32 metaIpfsAddr);
+	// ... modified event for everything
 }

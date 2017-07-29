@@ -20,8 +20,7 @@ contract ADXPublisherRegistry is Ownable, Drainable {
 	struct Publisher {
 		address publisherAddr;
 		string name;
-		string website;
-		string email;
+		string meta;
 		address walletAddr;
 
 		mapping (bytes32 => Channel) channels;
