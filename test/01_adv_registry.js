@@ -52,6 +52,13 @@ contract('ADXAdvertiserRegistry', function(accounts) {
 		})
 	})
 
+	it("advertiser not registered", function() {
+		return advRegistry.isRegistered(accOne)
+		.then(function(isReg) {
+			assert.equal(isReg, false)
+		})
+	})
+
 	it("can register as an advertiser", function() {
 		return advRegistry.registerAsAdvertiser("stremio", wallet, "{}", {
 			from: accOne,
@@ -63,6 +70,13 @@ contract('ADXAdvertiserRegistry', function(accounts) {
 			assert.equal(ev.args.addr, accOne)
 			assert.equal(ev.args.wallet, wallet)
 			assert.equal(ev.args.meta, '{}')
+		})
+	})
+
+	it("advertiser is registered", function() {
+		return advRegistry.isRegistered(accOne)
+		.then(function(isReg) { 
+			assert.equal(isReg, true)
 		})
 	})
 
