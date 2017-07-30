@@ -121,7 +121,9 @@ contract ADXExchange is Ownable, Drainable {
 
 	}
 
-	function revokeAndRefundBid(Bid bid, BidState newState) internal {
+	function revokeAndRefundBid(Bid bid, BidState newState)
+		internal
+	{
 		// evaluate if existing state is sane (possible to refund)
 
 		// set bid state
@@ -134,6 +136,20 @@ contract ADXExchange is Ownable, Drainable {
 		//token.transfer(bid.advertiserWallet, bid.amount);
 	}
 
+	//
+	// Public constant functions
+	//
+
+	function getBids()
+		constant
+		external
+	{
+
+	}
+
+	//
+	// Events
+	//
 	event LogBidOpened(bytes32 _bidId);
 	event LogBidAccepted(bytes32 _bidId);
 	event LogBidCanceled(bytes32 _bidId);

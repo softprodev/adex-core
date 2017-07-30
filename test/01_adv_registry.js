@@ -94,11 +94,30 @@ contract('ADXAdvertiserRegistry', function(accounts) {
 		})
 	})
 	
-	// can register a new campaign
-	// update existing campaign
-	// can't update another advertiser's campaign
+	// TODO: can register a new campaign
+	// TODO: update existing campaign
+	// TODO: can't update another advertiser's campaign
 
-	// can register an ad unit
-	// can update an existing ad unit
-	// can't update another advertiser's ad unit
+	// TODO: can register an ad unit
+	// TODO: can update an existing ad unit
+	// TODO: can't update another advertiser's ad unit
+
+	// can drain ether: can't test that, because we can't send ether in the first place...
+	// maybe figure out a way to test it?
+
+	// TODO: can drain tokens
+
+	it("can't send ether accidently", function() {
+		return new Promise((resolve, reject) => {
+			web3.eth.sendTransaction({
+				from: accOne,
+				to: advRegistry.address,
+				value: 1*10**18,
+				gas: 130000
+			}, (err) => {
+				assert.equal(err.message, 'VM Exception while processing transaction: invalid opcode')
+				resolve()
+			})
+		})
+	})
 })
