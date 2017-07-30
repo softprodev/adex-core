@@ -70,11 +70,16 @@ contract ADXAdvertiserRegistry is Ownable, Drainable {
 	{
 		require(_wallet != 0);
 
+		var isNew = advertisers[msg.sender].advertiserAddr == 0;
+
 		var adv = advertisers[msg.sender];
 		adv.advertiserAddr = msg.sender;
 		adv.name = _name;
 		adv.walletAddr = _wallet;
 		adv.meta = _meta;
+
+		if (isNew) LogAdvertiserRegistered(adv.advertiserAddr, adv.walletAddr, adv.name, adv.meta);
+		else LogAdvertiserModified(adv.advertiserAddr, adv.walletAddr, adv.name, adv.meta);
 	}
 
 	// use _id = 0 to create a new campaign, otherwise modify existing
@@ -97,8 +102,8 @@ contract ADXAdvertiserRegistry is Ownable, Drainable {
 
 		advertisers[msg.sender].campaigns[campaign.id] = campaign;
 
-		if (_id == 0) LogCampaignRegistered(campaign.id, campaign.name);
-		else LogCampaignModified(campaign.id, campaign.name);
+		if (_id == 0) LogCampaignRegistered(campaign.id, campaign.name, campaign.meta);
+		else LogCampaignModified(campaign.id, campaign.name, campaign.meta);
 	}
 
 	// use _id = 0 to create a new ad unit, otherwise modify existing
@@ -122,8 +127,8 @@ contract ADXAdvertiserRegistry is Ownable, Drainable {
 
 		advertisers[msg.sender].adunits[unit.id] = unit;
 
-		if (_id == 0) LogAdUnitRegistered(unit.id, unit.metaIpfsAddr);
-		else LogAdUnitModified(unit.id, unit.metaIpfsAddr);
+		if (_id == 0) LogAdUnitRegistered(unit.id, unit.metaIpfsAddr, unit.targeting);
+		else LogAdUnitModified(unit.id, unit.metaIpfsAddr, unit.targeting);
 	}
 
 	// NOTE
@@ -154,12 +159,13 @@ contract ADXAdvertiserRegistry is Ownable, Drainable {
 	}
 
 	// Events
-	// event LogAdvertiserRegistered();
-	// event LogAdvertiserModified();
-	event LogCampaignRegistered(uint id, string name);
-	event LogCampaignModified(uint id, string name);
+	event LogAdvertiserRegistered(address addr, address wallet, string name, string meta);
+	event LogAdvertiserModified(address addr, address wallet, string name, string meta);
+	
+	event LogCampaignRegistered(uint id, string name, string meta);
+	event LogCampaignModified(uint id, string name, string meta);
 
-	event LogAdUnitRegistered(uint id, bytes32 metaIpfsAddr);
-	event LogAdUnitModified(uint id, bytes32 metaIpfsAddr);
+	event LogAdUnitRegistered(uint id, bytes32 metaIpfsAddr, bytes32[] targeting);
+	event LogAdUnitModified(uint id, bytes32 metaIpfsAddr, bytes32[] targeting);
 	// ... modified event for everything
 }
