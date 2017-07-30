@@ -79,6 +79,7 @@ contract('ADXAdvertiserRegistry', function(accounts) {
 			assert.equal(ev.args.meta, '{ "email": "office@strem.io" }')
 		})
 	})
+	
 	// can register a new campaign
 	// update existing campaign
 	// can't update another advertiser's campaign

@@ -57,6 +57,9 @@ contract ADXExchange is Ownable, Drainable {
 
 		// Additional payload
 		bytes32[] payload;
+
+		// State channel peers
+		bytes32[] peers;
 	}
 
 	// XXX fixme
