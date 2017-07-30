@@ -3,12 +3,14 @@ pragma solidity ^0.4.13;
 import "../zeppelin-solidity/contracts/ownership/Ownable.sol";
 import "../zeppelin-solidity/contracts/math/SafeMath.sol";
 import "./helpers/Drainable.sol";
+import "../zeppelin-solidity/contracts/token/ERC20.sol";
+import "./ADXRegistryAbstraction.sol";
 
 contract ADXExchange is Ownable, Drainable {
 
-	address token;
-	address pubRegistry;
-	address advRegistry;
+	ERC20 token;
+	Registry pubRegistry;
+	Registry advRegistry;
 
 	mapping (bytes32 => Bid) bidsById;
 	mapping (address => mapping (bytes32 => Bid)) bidsByAdvertiser; // bids set out by advertisers
@@ -62,11 +64,8 @@ contract ADXExchange is Ownable, Drainable {
 		bytes32[] peers;
 	}
 
-	// XXX fixme
-	//modifier onlyRegisteredAdvertiser() { require(advRegistry.isRegistered(msg.sender)); _; }
-	//modifier onlyRegisteredPublisher() { require(pubRegistry.isRegistered(msg.sender)); _;  }
-	modifier onlyRegisteredAdvertiser() { _; }
-	modifier onlyRegisteredPublisher() { _; }
+	modifier onlyRegisteredAdvertiser() { require(advRegistry.isRegistered(msg.sender)); _; }
+	modifier onlyRegisteredPublisher() { require(pubRegistry.isRegistered(msg.sender)); _;  }
 
 	modifier onlyBidOwner(bytes32 bidId) { require(msg.sender == bidsById[bidId].advertiser); _; }
 	modifier existingBid(bytes32 bidId) { require(bidsById[bidId].id != 0); _; }
@@ -74,9 +73,9 @@ contract ADXExchange is Ownable, Drainable {
 	// Functions
 
 	function setAddresses(address _token, address _pubRegistry, address _advRegistry) onlyOwner {
-		token = _token;
-		pubRegistry = _pubRegistry;
-		advRegistry = _advRegistry;
+		token = ERC20(_token);
+		pubRegistry = Registry(_pubRegistry);
+		advRegistry = Registry(_advRegistry);
 	}
 
 	//

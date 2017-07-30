@@ -105,7 +105,7 @@ contract('ADXAdvertiserRegistry', function(accounts) {
 	// can drain ether: can't test that, because we can't send ether in the first place...
 	// maybe figure out a way to test it?
 
-	// TODO: can drain tokens
+	// TODO: can drain tokens if accidently sent
 
 	it("can't send ether accidently", function() {
 		return new Promise((resolve, reject) => {
