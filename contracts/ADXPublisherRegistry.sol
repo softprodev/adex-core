@@ -36,8 +36,7 @@ contract ADXPublisherRegistry is Ownable, Drainable, Registry {
 		bytes32 id;
 		string name;
 		string description;
-		//ChannelType type;
-		string subtype;
+		string channelType; // format: "primaryType:secondaryType" or "primaryType"; primaryType can be "web", "mobile", "desktop"
 
 		mapping (bytes32 => Property) properties;
 
@@ -49,8 +48,7 @@ contract ADXPublisherRegistry is Ownable, Drainable, Registry {
 	struct Property {
 		bytes32 id;
 		string name;
-		string description;
-		//PropertyType type; // TODO
+		string meta;
 
 		address publisherAddr;
 		bytes32 channelId;
@@ -65,13 +63,6 @@ contract ADXPublisherRegistry is Ownable, Drainable, Registry {
 	// modifier propertyExists() { require(propertiesById[which].id); _; }
 	// modifier propertyNotExists() { require(!propertiesById[which].id); _; }
 
-	function isRegistered(address _who)
-		external
-		constant 
-		returns (bool)
-	{
-		return publishers[_who].publisherAddr != 0;
-	}
 
 	function registerAsPublisher() publisherNotExists {
 
@@ -107,6 +98,14 @@ contract ADXPublisherRegistry is Ownable, Drainable, Registry {
 		delete publishers[prop.publisherAddr].properties[id];
 	}
 
+
+	function isRegistered(address _who)
+		public
+		constant 
+		returns (bool)
+	{
+		return publishers[_who].publisherAddr != 0;
+	}
 	// event LogPublisherRegistered();
 	// event LogChannelRegistered();
 	// event LogPropertyRegistered();

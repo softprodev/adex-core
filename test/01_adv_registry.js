@@ -29,7 +29,7 @@ contract('ADXAdvertiserRegistry', function(accounts) {
 
 	it("can't register an ad unit w/o being an advertiser", function() {
 		return new Promise((resolve, reject) => {
-			advRegistry.registerAdUnit(0, 0, [], [], {
+			advRegistry.registerAdUnit(0, 0, [], {
 				from: accOne,
 				gas: 130000
 			}).catch((err) => {
@@ -93,8 +93,13 @@ contract('ADXAdvertiserRegistry', function(accounts) {
 			assert.equal(ev.args.meta, '{ "email": "office@strem.io" }')
 		})
 	})
-	
-	// TODO: can register a new campaign
+
+	it("can register a new campaign", function() {
+		return advRegistry.registerCampaign(0, "foobar campaign", "{}", {
+			from: accOne,
+			gas: 230000
+		})
+	})
 	// TODO: update existing campaign
 	// TODO: can't update another advertiser's campaign
 
@@ -107,6 +112,9 @@ contract('ADXAdvertiserRegistry', function(accounts) {
 
 	// TODO: can drain tokens if accidently sent
 
+	// TODO: all the *get methods 
+	// also test if they are callable for non-registered advertisers
+
 	it("can't send ether accidently", function() {
 		return new Promise((resolve, reject) => {
 			web3.eth.sendTransaction({
@@ -118,6 +126,13 @@ contract('ADXAdvertiserRegistry', function(accounts) {
 				assert.equal(err.message, 'VM Exception while processing transaction: invalid opcode')
 				resolve()
 			})
+		})
+	})
+
+	it("can get an advertiser", function() {
+		return advRegistry.getAdvertiser(accOne)
+		.then(function(res) {
+			console.log(res)
 		})
 	})
 })

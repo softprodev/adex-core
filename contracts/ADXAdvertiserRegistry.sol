@@ -11,7 +11,7 @@ contract ADXAdvertiserRegistry is Ownable, Drainable, Registry {
 	//		Ad Units - particular ad units 
 	// Advertisers are linked to Campaigns
 	// Advertisers are linked to Ad Units
-	// Ad units are linked to Campaigns, and one ad unit can be linked to multiple campaigns
+	// Ad Units are related to Campaigns, directly through the Bids (a Bid object can be associated with a campaign and an ad unit)
 
 	string public name = "AdEx Advertiser Registry";
 
@@ -28,8 +28,9 @@ contract ADXAdvertiserRegistry is Ownable, Drainable, Registry {
 		address walletAddr;
 		string meta;
 	
-		mapping (uint => Campaign) campaigns;
-		mapping (uint => AdUnit) adunits;
+		// by id
+		uint[] campaigns;
+		uint[] adunits;
 	}
 
 	struct Campaign {
@@ -47,23 +48,12 @@ contract ADXAdvertiserRegistry is Ownable, Drainable, Registry {
 		bytes32 metaIpfsAddr; // ipfs addr of meta for this ad unit
 		
 		bytes32[] targeting; // any meta that may be relevant to the targeting, in an AdEx-specific format
-
-		uint[] campaignIds;
 	}
 
 	modifier onlyRegisteredAdvertiser() {
 		var adv = advertisers[msg.sender];
 		require(adv.advertiserAddr != 0);
 		_;
-	}
-
-	function isRegistered(address who)
-		external 
-		constant
-		returns (bool)
-	{
-		var adv = advertisers[who];
-		return adv.advertiserAddr != 0;
 	}
 
 	// can be called over and over to update the data
@@ -103,14 +93,14 @@ contract ADXAdvertiserRegistry is Ownable, Drainable, Registry {
 		campaign.name = _name;
 		campaign.meta = _meta;
 
-		advertisers[msg.sender].campaigns[campaign.id] = campaign;
+		advertisers[msg.sender].campaigns.push(campaign.id);
 
 		if (_id == 0) LogCampaignRegistered(campaign.id, campaign.name, campaign.meta);
 		else LogCampaignModified(campaign.id, campaign.name, campaign.meta);
 	}
 
 	// use _id = 0 to create a new ad unit, otherwise modify existing
-	function registerAdUnit(uint _id, bytes32 _metaIpfsAddr, bytes32[] _targeting, uint[] _campaignIds)
+	function registerAdUnit(uint _id, bytes32 _metaIpfsAddr, bytes32[] _targeting)
 		onlyRegisteredAdvertiser 
 	{
 		AdUnit unit;
@@ -126,9 +116,8 @@ contract ADXAdvertiserRegistry is Ownable, Drainable, Registry {
 
 		unit.metaIpfsAddr = _metaIpfsAddr;
 		unit.targeting = _targeting;
-		unit.campaignIds = _campaignIds;
 
-		advertisers[msg.sender].adunits[unit.id] = unit;
+		advertisers[msg.sender].adunits.push(unit.id);
 
 		if (_id == 0) LogAdUnitRegistered(unit.id, unit.metaIpfsAddr, unit.targeting);
 		else LogAdUnitModified(unit.id, unit.metaIpfsAddr, unit.targeting);
@@ -139,26 +128,44 @@ contract ADXAdvertiserRegistry is Ownable, Drainable, Registry {
 	// Campaigns need to be kept anyway, as well as ad units
 	// END NOTE
 
-	// Constant functions
-	function getMyCampaigns()
-		onlyRegisteredAdvertiser
+	function isRegistered(address who)
+		public 
 		constant
+		returns (bool)
 	{
-
+		var adv = advertisers[who];
+		return adv.advertiserAddr != 0;
 	}
 
-	function getMyAdUnits()
-		onlyRegisteredAdvertiser
+	// Functions exposed for web3 interface
+	function getAdvertiser(address _advertiser)
 		constant
+		public
+		returns (string, address, string, uint[], uint[])
 	{
-
+		var adv = advertisers[_advertiser];
+		require(adv.advertiserAddr != 0);
+		return (adv.name, adv.walletAddr, adv.meta, adv.campaigns, adv.adunits);
 	}
 
-	function getMyAdUnitsForCampaign()
-		onlyRegisteredAdvertiser
+	function getCampaign(uint _id) 
 		constant
+		public
+		returns (string, string)
 	{
+		var campaign = campaigns[_id];
+		require(campaign.id != 0);
+		return (campaign.name, campaign.meta);
+	}
 
+	function getAdUnit(uint _id) 
+		constant
+		public
+		returns (bytes32, bytes32[])
+	{
+		var adunit = adunits[_id];
+		require(adunit.id != 0);
+		return (adunit.metaIpfsAddr, adunit.targeting);
 	}
 
 	// Events
@@ -170,5 +177,4 @@ contract ADXAdvertiserRegistry is Ownable, Drainable, Registry {
 
 	event LogAdUnitRegistered(uint id, bytes32 metaIpfsAddr, bytes32[] targeting);
 	event LogAdUnitModified(uint id, bytes32 metaIpfsAddr, bytes32[] targeting);
-	// ... modified event for everything
 }

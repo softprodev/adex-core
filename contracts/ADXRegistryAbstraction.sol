@@ -4,7 +4,7 @@ contract Registry {
 	string public name;
 
 	function isRegistered(address _addr)
-		external
+		public
 		constant
 		returns (bool)
 	{
