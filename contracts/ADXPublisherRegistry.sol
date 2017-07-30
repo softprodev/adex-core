@@ -2,8 +2,9 @@ pragma solidity ^0.4.13;
 
 import "../zeppelin-solidity/contracts/ownership/Ownable.sol";
 import "./helpers/Drainable.sol";
+import "./ADXRegistryAbstraction.sol";
 
-contract ADXPublisherRegistry is Ownable, Drainable {
+contract ADXPublisherRegistry is Ownable, Drainable, Registry {
 	// Structure:
 	// Publishers
 	// 		Channels (e.g. website/app)
@@ -12,6 +13,8 @@ contract ADXPublisherRegistry is Ownable, Drainable {
 	// Publishers are linked to Properties
 	// Channels are linked to Properties
 	// everything is saved at the top-level and accessible by ID
+	
+	string public name = "AdEx Publisher Registry";
 
 	mapping (address => Publisher) public publishers;
 	mapping (bytes32 => Channel) public channelsById;
@@ -62,12 +65,12 @@ contract ADXPublisherRegistry is Ownable, Drainable {
 	// modifier propertyExists() { require(propertiesById[which].id); _; }
 	// modifier propertyNotExists() { require(!propertiesById[which].id); _; }
 
-	function isRegistered(address who)
+	function isRegistered(address _who)
 		external
 		constant 
 		returns (bool)
 	{
-		return publishers[who].publisherAddr != 0;
+		return publishers[_who].publisherAddr != 0;
 	}
 
 	function registerAsPublisher() publisherNotExists {

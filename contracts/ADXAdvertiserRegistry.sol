@@ -2,8 +2,9 @@ pragma solidity ^0.4.13;
 
 import "../zeppelin-solidity/contracts/ownership/Ownable.sol";
 import "./helpers/Drainable.sol";
+import "./ADXRegistryAbstraction.sol";
 
-contract ADXAdvertiserRegistry is Ownable, Drainable {
+contract ADXAdvertiserRegistry is Ownable, Drainable, Registry {
 	// Structure:
 	// Advertisers
 	// 		Campaigns - particular advertising campaigns
@@ -11,6 +12,8 @@ contract ADXAdvertiserRegistry is Ownable, Drainable {
 	// Advertisers are linked to Campaigns
 	// Advertisers are linked to Ad Units
 	// Ad units are linked to Campaigns, and one ad unit can be linked to multiple campaigns
+
+	string public name = "AdEx Advertiser Registry";
 
 	uint public campaignsCount;
 	uint public adUnitsCount;
