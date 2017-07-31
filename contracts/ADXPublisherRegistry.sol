@@ -43,61 +43,46 @@ contract ADXPublisherRegistry is Ownable, Drainable, Registry {
 		address publisherAddr;
 	}
 
-	//struct PropertyType {  } // TODO
+	//struct PropertyType {  } // XXX consider this for future versions
 
 	struct Property {
 		bytes32 id;
 		string name;
 		string meta;
 
+		bool active;
+
 		address publisherAddr;
 		bytes32 channelId;
 	}
 
-	modifier publisherExists() { require(publishers[msg.sender].publisherAddr != 0); _; }
-	modifier publisherNotExists() { require(publishers[msg.sender].publisherAddr == 0); _; }
-
-	// modifier channelExists() { require(channelsById[which].id); _; }
-	// modifier channelNotExists() { require(!channelsById[which].id); _; }
-
-	// modifier propertyExists() { require(propertiesById[which].id); _; }
-	// modifier propertyNotExists() { require(!propertiesById[which].id); _; }
-
-
-	function registerAsPublisher() publisherNotExists {
-
+	modifier onlyRegisteredPublisher() { 
+		var pub = publishers[msg.sender];
+		require(pub.publisherAddr != 0); 
+		_; 
 	}
 
-	function updatePublisher() publisherExists {
-
-	}
-
-	function registerChannel() publisherExists {
-
-	}
-
-
-	function registerProperty() publisherExists {
-
-	}
-
-	function unregisterChannel() publisherExists {
-		// MAKE SURE ALL PROPERTIES ARE UN-REGISTERED
-
-	}
-
-	function unregisterProperty(bytes32 id) 
-		publisherExists 
-		external
+	function registerAsPublisher()
 	{
-		Property prop = propertiesById[id];
-		require(prop.id != 0);
 
-		delete propertiesById[id];
-		delete channelsById[prop.channelId].properties[id];
-		delete publishers[prop.publisherAddr].properties[id];
 	}
 
+	function registerChannel()
+		onlyRegisteredPublisher
+	{
+
+	}
+
+
+	function registerProperty()
+		onlyRegisteredPublisher
+	{
+
+	}
+
+	//
+	// Constant functions
+	//
 
 	function isRegistered(address _who)
 		public
@@ -109,4 +94,8 @@ contract ADXPublisherRegistry is Ownable, Drainable, Registry {
 	// event LogPublisherRegistered();
 	// event LogChannelRegistered();
 	// event LogPropertyRegistered();
+
+	// TODO modified events
+
+	// TODO: property activated / property de-activated
 }

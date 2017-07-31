@@ -128,6 +128,10 @@ contract ADXAdvertiserRegistry is Ownable, Drainable, Registry {
 	// Campaigns need to be kept anyway, as well as ad units
 	// END NOTE
 
+	//
+	// Constant functions
+	//
+
 	function isRegistered(address who)
 		public 
 		constant
