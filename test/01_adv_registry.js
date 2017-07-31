@@ -94,8 +94,28 @@ contract('ADXAdvertiserRegistry', function(accounts) {
 		})
 	})
 
+	var campaignId;
 	it("can register a new campaign", function() {
 		return advRegistry.registerCampaign(0, "foobar campaign", "{}", {
+			from: accOne,
+			gas: 230000
+		}).then(function(res) {
+			console.log(res)
+
+			var ev = res.logs[0]
+			if (! ev) throw 'no event'
+			assert.equal(ev.event, 'LogCampaignRegistered')
+			assert.equal(ev.args.id, 1)
+			assert.equal(ev.args.name, 'foobar campaign')
+			assert.equal(ev.args.meta, '{}')
+
+			campaignId = ev.args.id
+
+			// TODO check all campaigns for an advertiser after
+		})
+	})
+	it("can update a campaign", function() {
+		return advRegistry.registerCampaign(campaignId, "foobar campaign", "{ someMeta: 's' }", {
 			from: accOne,
 			gas: 230000
 		})

@@ -79,21 +79,22 @@ contract ADXAdvertiserRegistry is Ownable, Drainable, Registry {
 	function registerCampaign(uint _id, string _name, string _meta)
 		onlyRegisteredAdvertiser
 	{
-		Campaign campaign;
+		var campaign = campaigns[_id];
 
 		if (_id == 0) {
+			// XXX: what about overflow here?
 			campaignsCount++;
 			campaign = campaigns[campaignsCount];
 			campaign.id = campaignsCount;
 			campaign.owner = msg.sender;
+
+			advertisers[msg.sender].campaigns.push(campaign.id);
 		}
 
 		require(campaign.owner == msg.sender);
 
 		campaign.name = _name;
 		campaign.meta = _meta;
-
-		advertisers[msg.sender].campaigns.push(campaign.id);
 
 		if (_id == 0) LogCampaignRegistered(campaign.id, campaign.name, campaign.meta);
 		else LogCampaignModified(campaign.id, campaign.name, campaign.meta);
@@ -103,21 +104,22 @@ contract ADXAdvertiserRegistry is Ownable, Drainable, Registry {
 	function registerAdUnit(uint _id, bytes32 _metaIpfsAddr, bytes32[] _targeting)
 		onlyRegisteredAdvertiser 
 	{
-		AdUnit unit;
+		var unit = adunits[_id];
 
 		if (_id == 0) {
+			// XXX: what about overflow here?
 			adUnitsCount++;
 			unit = adunits[adUnitsCount];
 			unit.id = adUnitsCount;
 			unit.owner = msg.sender;
+
+			advertisers[msg.sender].adunits.push(unit.id);
 		}
 
 		require(unit.owner == msg.sender);
 
 		unit.metaIpfsAddr = _metaIpfsAddr;
 		unit.targeting = _targeting;
-
-		advertisers[msg.sender].adunits.push(unit.id);
 
 		if (_id == 0) LogAdUnitRegistered(unit.id, unit.metaIpfsAddr, unit.targeting);
 		else LogAdUnitModified(unit.id, unit.metaIpfsAddr, unit.targeting);

@@ -17,8 +17,8 @@ contract ADXPublisherRegistry is Ownable, Drainable, Registry {
 	string public name = "AdEx Publisher Registry";
 
 	mapping (address => Publisher) public publishers;
-	mapping (bytes32 => Channel) public channelsById;
-	mapping (bytes32 => Property) public propertiesById;
+	mapping (uint => Channel) public channels;
+	mapping (uint => Property) public properties;
 
 	struct Publisher {
 		address publisherAddr;
@@ -91,6 +91,7 @@ contract ADXPublisherRegistry is Ownable, Drainable, Registry {
 	{
 		return publishers[_who].publisherAddr != 0;
 	}
+
 	// event LogPublisherRegistered();
 	// event LogChannelRegistered();
 	// event LogPropertyRegistered();
