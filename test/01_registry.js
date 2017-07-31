@@ -100,8 +100,6 @@ contract('ADXAdvertiserRegistry', function(accounts) {
 			from: accOne,
 			gas: 230000
 		}).then(function(res) {
-			console.log(res)
-
 			var ev = res.logs[0]
 			if (! ev) throw 'no event'
 			assert.equal(ev.event, 'LogCampaignRegistered')
@@ -109,7 +107,7 @@ contract('ADXAdvertiserRegistry', function(accounts) {
 			assert.equal(ev.args.name, 'foobar campaign')
 			assert.equal(ev.args.meta, '{}')
 
-			campaignId = ev.args.id
+			campaignId = ev.args.id.toNumber()
 
 			// TODO check all campaigns for an advertiser after
 		})
@@ -118,9 +116,15 @@ contract('ADXAdvertiserRegistry', function(accounts) {
 		return advRegistry.registerCampaign(campaignId, "foobar campaign", "{ someMeta: 's' }", {
 			from: accOne,
 			gas: 230000
+		}).then(function(res) {
+			var ev = res.logs[0]
+			if (! ev) throw 'no event'
+			assert.equal(ev.event, 'LogCampaignModified')
+			assert.equal(ev.args.name, 'foobar campaign')
+			assert.equal(ev.args.meta, "{ someMeta: 's' }")
+			assert.equal(ev.args.id.toNumber(), campaignId)
 		})
 	})
-	// TODO: update existing campaign
 	// TODO: can't update another advertiser's campaign
 
 	// TODO: can register an ad unit
