@@ -26,8 +26,9 @@ contract ADXPublisherRegistry is Ownable, Drainable, Registry {
 		string meta;
 		address walletAddr;
 
-		mapping (bytes32 => Channel) channels;
-		mapping (bytes32 => Property) properties;
+		// by id
+		uint[] channels;
+		uint[] properties;
 	}
 
 	//enum ChannelType { Web, Mobile, Desktop }
@@ -56,15 +57,35 @@ contract ADXPublisherRegistry is Ownable, Drainable, Registry {
 		bytes32 channelId;
 	}
 
+	//
+	// Modifiers
+	//
 	modifier onlyRegisteredPublisher() { 
 		var pub = publishers[msg.sender];
 		require(pub.publisherAddr != 0); 
 		_; 
 	}
 
-	function registerAsPublisher()
-	{
+	// 
+	// Functions that modify state
+	//
 
+	// can be called over and over to update the data
+	function registerAsPublisher(string _name, address _wallet, string _meta)
+		external
+	{
+		require(_wallet != 0);
+
+		var isNew = publishers[msg.sender].publisherAddr == 0;
+
+		var pub = publishers[msg.sender];
+		pub.publisherAddr = msg.sender;
+		pub.name = _name;
+		pub.walletAddr = _wallet;
+		pub.meta = _meta;
+
+		// if (isNew) LogAdvertiserRegistered(adv.advertiserAddr, adv.walletAddr, adv.name, adv.meta);
+		// else LogAdvertiserModified(adv.advertiserAddr, adv.walletAddr, adv.name, adv.meta);
 	}
 
 	function registerChannel()
