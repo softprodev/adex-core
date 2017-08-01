@@ -2,10 +2,12 @@ var ADXAdvertiserRegistry = artifacts.require("./ADXAdvertiserRegistry.sol");
 var Promise = require('bluebird')
 var time = require('../helpers/time')
 
-contract('ADXAdvertiserRegistry', function(accounts) {
+contract('ADXRegistry', function(accounts) {
 	var accOne = web3.eth.accounts[0]
 	var wallet = web3.eth.accounts[8]
 
+	var ADUNIT = 0 
+	var PROPERTY = 1
 
 	var advRegistry 
 
@@ -15,9 +17,9 @@ contract('ADXAdvertiserRegistry', function(accounts) {
 		})
 	});
 
-	it("can't register a campaign w/o being an advertiser", function() {
+	it("can't register a property w/o being an account", function() {
 		return new Promise((resolve, reject) => {
-			advRegistry.registerCampaign(0, "test campaign", "{}", {
+			advRegistry.registerItem(PROPERTY, 0, "test campaign", "{}", 0, {
 				from: accOne,
 				gas: 130000
 			}).catch((err) => {
@@ -27,9 +29,9 @@ contract('ADXAdvertiserRegistry', function(accounts) {
 		})
 	});
 
-	it("can't register an ad unit w/o being an advertiser", function() {
+	it("can't register an ad unit w/o being an account", function() {
 		return new Promise((resolve, reject) => {
-			advRegistry.registerAdUnit(0, 0, [], {
+			advRegistry.registerItem(ADUNIT, 0, "blank name", "blank meta", 0, {
 				from: accOne,
 				gas: 130000
 			}).catch((err) => {
@@ -40,9 +42,9 @@ contract('ADXAdvertiserRegistry', function(accounts) {
 	})
 
 
-	it("can't register as an advertiser w/o a wallet", function() {
+	it("can't register as a publisher w/o a wallet", function() {
 		return new Promise((resolve, reject) => {
-			advRegistry.registerAsAdvertiser("stremio", 0, "{}", {
+			advRegistry.register("stremio", 0, "{}", {
 				from: accOne,
 				gas: 130000
 			}).catch((err) => {
@@ -52,84 +54,85 @@ contract('ADXAdvertiserRegistry', function(accounts) {
 		})
 	})
 
-	it("advertiser not registered", function() {
+	it("account not registered", function() {
 		return advRegistry.isRegistered(accOne)
 		.then(function(isReg) {
 			assert.equal(isReg, false)
 		})
 	})
 
-	it("can register as an advertiser", function() {
-		return advRegistry.registerAsAdvertiser("stremio", wallet, "{}", {
+	it("can register as an account", function() {
+		return advRegistry.register("stremio", wallet, "{}", {
 			from: accOne,
 			gas: 130000
 		}).then(function(res) {
 			var ev = res.logs[0]
 			if (! ev) throw 'no event'
-			assert.equal(ev.event, 'LogAdvertiserRegistered')
+			assert.equal(ev.event, 'LogAccountRegistered')
 			assert.equal(ev.args.addr, accOne)
 			assert.equal(ev.args.wallet, wallet)
 			assert.equal(ev.args.meta, '{}')
 		})
 	})
 
-	it("advertiser is registered", function() {
+	it("account is registered", function() {
 		return advRegistry.isRegistered(accOne)
 		.then(function(isReg) { 
 			assert.equal(isReg, true)
 		})
 	})
 
-	it("can update advertiser info", function() {
-		return advRegistry.registerAsAdvertiser("stremio", wallet, '{ "email": "office@strem.io" }', {
+	it("can update account info", function() {
+		return advRegistry.register("stremio", wallet, '{ "email": "office@strem.io" }', {
 			from: accOne,
 			gas: 130000
 		}).then(function(res) {
 			var ev = res.logs[0]
 			if (! ev) throw 'no event'
-			assert.equal(ev.event, 'LogAdvertiserModified')
+			assert.equal(ev.event, 'LogAccountModified')
 			assert.equal(ev.args.addr, accOne)
 			assert.equal(ev.args.wallet, wallet)
 			assert.equal(ev.args.meta, '{ "email": "office@strem.io" }')
 		})
 	})
 
-	var campaignId;
-	it("can register a new campaign", function() {
-		return advRegistry.registerCampaign(0, "foobar campaign", "{}", {
+	var adunitId;
+	it("can register a new ad unit", function() {
+		return advRegistry.registerItem(ADUNIT, 0, "foobar ad unit", "{}", 0x42, {
 			from: accOne,
 			gas: 230000
 		}).then(function(res) {
 			var ev = res.logs[0]
 			if (! ev) throw 'no event'
-			assert.equal(ev.event, 'LogCampaignRegistered')
+			assert.equal(ev.event, 'LogItemRegistered')
+			assert.equal(ev.args.itemType, ADUNIT);
 			assert.equal(ev.args.id, 1)
-			assert.equal(ev.args.name, 'foobar campaign')
+			assert.equal(ev.args.name, 'foobar ad unit')
 			assert.equal(ev.args.meta, '{}')
+			assert.equal(ev.args.ipfs, '0x4200000000000000000000000000000000000000000000000000000000000000');
 
-			campaignId = ev.args.id.toNumber()
+			adunitId = ev.args.id.toNumber()
 
-			// TODO check all campaigns for an advertiser after
+			// TODO check all ad units for an account after
 		})
 	})
-	it("can update a campaign", function() {
-		return advRegistry.registerCampaign(campaignId, "foobar campaign", "{ someMeta: 's' }", {
+	it("can update an ad unit", function() {
+		return advRegistry.registerItem(ADUNIT, adunitId, "foobar campaign", "{ someMeta: 's' }", 0x45, {
 			from: accOne,
 			gas: 230000
 		}).then(function(res) {
 			var ev = res.logs[0]
 			if (! ev) throw 'no event'
-			assert.equal(ev.event, 'LogCampaignModified')
+			assert.equal(ev.event, 'LogItemModified')
+			assert.equal(ev.args.itemType, ADUNIT);
 			assert.equal(ev.args.name, 'foobar campaign')
 			assert.equal(ev.args.meta, "{ someMeta: 's' }")
-			assert.equal(ev.args.id.toNumber(), campaignId)
+			assert.equal(ev.args.ipfs, '0x4500000000000000000000000000000000000000000000000000000000000000');
+			assert.equal(ev.args.id.toNumber(), adunitId)
 		})
 	})
-	// TODO: can't update another advertiser's campaign
+	// TODO: can't update another accounts's ad unit
 
-	// TODO: can register an ad unit
-	// TODO: can update an existing ad unit
-	// TODO: can't update another advertiser's ad unit
 
 	// can drain ether: can't test that, because we can't send ether in the first place...
 	// maybe figure out a way to test it?
@@ -137,7 +140,7 @@ contract('ADXAdvertiserRegistry', function(accounts) {
 	// TODO: can drain tokens if accidently sent
 
 	// TODO: all the *get methods 
-	// also test if they are callable for non-registered advertisers
+	// also test if they are callable for non-registered accounts
 
 	it("can't send ether accidently", function() {
 		return new Promise((resolve, reject) => {
@@ -153,10 +156,12 @@ contract('ADXAdvertiserRegistry', function(accounts) {
 		})
 	})
 
-	it("can get an advertiser", function() {
-		return advRegistry.getAdvertiser(accOne)
+	it("can get an account, account meta correct", function() {
+		return advRegistry.getAccount(accOne)
 		.then(function(res) {
-			console.log(res)
+			assert.equal(res[0], 'stremio')
+			assert.equal(res[1], wallet)
+			assert.equal(res[2], '{ "email": "office@strem.io" }')
 		})
 	})
 })
