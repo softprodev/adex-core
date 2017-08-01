@@ -143,6 +143,8 @@ contract('ADXRegistry', function(accounts) {
 		})
 	})
 
+	// TODO: also do some testing with properties
+
 	// can drain ether: can't test that, because we can't send ether in the first place...
 	// maybe figure out a way to test it?
 
@@ -171,6 +173,24 @@ contract('ADXRegistry', function(accounts) {
 			assert.equal(res[0], 'stremio')
 			assert.equal(res[1], wallet)
 			assert.equal(res[2], '{ "email": "office@strem.io" }')
+		})
+	})
+
+	it("can get items for an acc", function() {
+		return advRegistry.getAccountItems(accOne, ADUNIT)
+		.then(function(res) {
+			assert.equal(res.length, 1)
+			assert.equal(res[0].toNumber(), adunitId)
+		})
+	})
+
+
+	it("can get a single item", function() {
+		return advRegistry.getItem(ADUNIT, adunitId)
+		.then(function(res) {
+			assert.equal(res[0], 'foobar campaign')
+			assert.equal(res[1], "{ someMeta: 's' }")
+			assert.equal(res[2], '0x4500000000000000000000000000000000000000000000000000000000000000')
 		})
 	})
 })

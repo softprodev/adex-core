@@ -35,6 +35,7 @@ contract ADXAdvertiserRegistry is Ownable, Drainable, Registry {
 		mapping (uint => uint[]) items;
 	}
 
+	// Sub-item, such as AdUnit, Property, Campaign, Channel
 	struct Item {
 		uint id;
 		address owner;
@@ -76,7 +77,6 @@ contract ADXAdvertiserRegistry is Ownable, Drainable, Registry {
 		onlyRegistered
 	{
 		// XXX _type sanity check?
-
 		var item = items[_type][_id];
 
 		if (_id == 0) {
@@ -113,7 +113,6 @@ contract ADXAdvertiserRegistry is Ownable, Drainable, Registry {
 	//
 	// Constant functions
 	//
-
 	function isRegistered(address who)
 		public 
 		constant
