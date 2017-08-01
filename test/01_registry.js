@@ -131,8 +131,17 @@ contract('ADXRegistry', function(accounts) {
 			assert.equal(ev.args.id.toNumber(), adunitId)
 		})
 	})
-	// TODO: can't update another accounts's ad unit
-
+	it("can't update another accounts' ad unit", function() {
+		return new Promise((resolve, reject) => {
+			advRegistry.registerItem(ADUNIT, adunitId, "foobar campaign", "{ someMeta: 'sx' }", 0x45, {
+				from: web3.eth.accounts[3],
+				gas: 230000
+			}).catch((err) => {
+				assert.equal(err.message, 'VM Exception while processing transaction: invalid opcode')
+				resolve()
+			})			
+		})
+	})
 
 	// can drain ether: can't test that, because we can't send ether in the first place...
 	// maybe figure out a way to test it?
