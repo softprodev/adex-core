@@ -2,9 +2,8 @@ pragma solidity ^0.4.13;
 
 import "../zeppelin-solidity/contracts/ownership/Ownable.sol";
 import "./helpers/Drainable.sol";
-import "./ADXRegistryAbstraction.sol";
 
-contract ADXAdvertiserRegistry is Ownable, Drainable, Registry {
+contract ADXRegistry is Ownable, Drainable {
 	string public name = "AdEx Registry";
 
 	// Structure:
@@ -17,11 +16,11 @@ contract ADXAdvertiserRegistry is Ownable, Drainable, Registry {
 	mapping (address => Account) public accounts;
 
 	// XXX: mostly unused, because solidity does not allow mapping with enum as primary type.. :( we just use uint
-    enum ItemType { AdUnit, Property, Campaign, Channel }
+	enum ItemType { AdUnit, Property, Campaign, Channel }
 
-    // uint here corresponds to the ItemType
-    mapping (uint => uint) public counts;
-    mapping (uint => mapping (uint => Item)) public items;
+	// uint here corresponds to the ItemType
+	mapping (uint => uint) public counts;
+	mapping (uint => mapping (uint => Item)) public items;
 
 	// Publisher or Advertiser (could be both)
 	struct Account {		

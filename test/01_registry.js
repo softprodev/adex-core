@@ -1,4 +1,4 @@
-var ADXAdvertiserRegistry = artifacts.require("./ADXAdvertiserRegistry.sol");
+var ADXRegistry = artifacts.require("./ADXRegistry.sol");
 var Promise = require('bluebird')
 var time = require('../helpers/time')
 
@@ -12,7 +12,7 @@ contract('ADXRegistry', function(accounts) {
 	var advRegistry 
 
 	it("initialize contract", function() {
-		return ADXAdvertiserRegistry.new().then(function(_advRegistry) {
+		return ADXRegistry.new().then(function(_advRegistry) {
 			advRegistry = _advRegistry
 		})
 	});

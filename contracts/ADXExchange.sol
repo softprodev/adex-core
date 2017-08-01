@@ -4,17 +4,20 @@ import "../zeppelin-solidity/contracts/ownership/Ownable.sol";
 import "../zeppelin-solidity/contracts/math/SafeMath.sol";
 import "./helpers/Drainable.sol";
 import "../zeppelin-solidity/contracts/token/ERC20.sol";
-import "./ADXRegistryAbstraction.sol";
+import "./ADXRegistry.sol";
 
 contract ADXExchange is Ownable, Drainable {
 
 	ERC20 token;
-	Registry pubRegistry;
-	Registry advRegistry;
+	ADXRegistry registry;
 
 	mapping (bytes32 => Bid) bidsById;
 	mapping (address => mapping (bytes32 => Bid)) bidsByAdvertiser; // bids set out by advertisers
 	mapping (address => mapping (bytes32 => Bid)) bidsByPublisher; // accepted by publisher
+
+	// corresponds to enum types in ADXRegistry
+	uint constant ADUNIT = 0;
+	uint constant PROPERTY = 1;
 
 	enum BidState { 
 		Open, 
@@ -64,32 +67,38 @@ contract ADXExchange is Ownable, Drainable {
 		bytes32[] peers;
 	}
 
-	modifier onlyRegisteredAdvertiser() { require(advRegistry.isRegistered(msg.sender)); _; }
-	modifier onlyRegisteredPublisher() { require(pubRegistry.isRegistered(msg.sender)); _;  }
+	modifier onlyRegisteredAcc() { require(registry.isRegistered(msg.sender)); _; }
 
 	modifier onlyBidOwner(bytes32 bidId) { require(msg.sender == bidsById[bidId].advertiser); _; }
 	modifier existingBid(bytes32 bidId) { require(bidsById[bidId].id != 0); _; }
 
 	// Functions
 
-	function setAddresses(address _token, address _pubRegistry, address _advRegistry) onlyOwner {
+	function setAddresses(address _token, address _registry)
+		onlyOwner 
+	{
 		token = ERC20(_token);
-		pubRegistry = Registry(_pubRegistry);
-		advRegistry = Registry(_advRegistry);
+		registry = ADXRegistry(_registry);
 	}
 
 	//
 	// Bid actions
 	// 
 
-	function placeBid() onlyRegisteredAdvertiser  {
+	function placeBid(uint _adunitId)
+		onlyRegisteredAcc
+	{
+		bytes32 adIpfs;
+		
+		// NOTE: this will throw if the ad does not exist
+		(,,adIpfs) = registry.getItem(ADUNIT, _adunitId);
 
 		// ADXToken.transferFrom(advertiserWallet, ourAddr)
 		// if that succeeds, we passed that THIS amount of ADX has been locked in the bid
 	}
 
 	function cancelBid(bytes32 _bidId) 
-		onlyRegisteredAdvertiser
+		onlyRegisteredAcc
 		onlyBidOwner(_bidId)
 		existingBid(_bidId) 
 	{
@@ -97,7 +106,7 @@ contract ADXExchange is Ownable, Drainable {
 	}
 
 	function acceptBid(bytes32 _bidId) 
-		onlyRegisteredPublisher 
+		onlyRegisteredAcc 
 		existingBid(_bidId) 
 		//openBid(bidId) 
 	{
@@ -114,7 +123,7 @@ contract ADXExchange is Ownable, Drainable {
 	// This can be done if a bid is accepted, but expired
 	// This is essentially the protection from never settling on verification, or from publisher not executing the bid within a reasonable time
 	function refundBid(bytes32 _bidId)
-		onlyRegisteredAdvertiser
+		onlyRegisteredAcc
 		onlyBidOwner(_bidId)
 	{
 
