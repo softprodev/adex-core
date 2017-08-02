@@ -58,10 +58,6 @@ contract ADXExchange is Ownable, Drainable {
 		uint requiredPoints; // how many impressions/clicks/conversions have to be done
 		uint requiredExecTime;
 
-		// margin of error against the state channel (append-only stats DB)
-		// a min threshold for that is good, but better protect the users from themselves in the dapp rather than the SC
-		uint acceptableMarginOfError;
-
 		// Results
 		uint achievedPoints;
 
