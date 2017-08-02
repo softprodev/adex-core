@@ -120,13 +120,13 @@ contract ADXExchange is Ownable, Drainable {
 		onlyRegisteredAcc
 	{
 		bytes32 adIpfs;
-
-		// XXX: should we check ownership of the advertisement? there may be no point; why not allow advertisers place bids for other ad units; sounds like a feature
 		address advertiser;
-		// downside is, that will complicate msg.sender vs advertiser
 
 		// NOTE: this will throw if the ad does not exist
 		(,,adIpfs,advertiser) = registry.getItem(ADUNIT, _adunitId);
+
+		// XXX: maybe it could be a feature to allow advertisers bidding on other advertisers' ad units, but it will complicate things...
+		require(advertiser == msg.sender);
 
 		// ADXToken.transferFrom(advertiserWallet, ourAddr)
 		// if that succeeds, we passed that THIS amount of ADX has been locked in the bid
@@ -204,10 +204,10 @@ contract ADXExchange is Ownable, Drainable {
 	//
 	// Events
 	//
-	event LogBidOpened(bytes32 _bidId);
-	event LogBidAccepted(bytes32 _bidId);
-	event LogBidCanceled(bytes32 _bidId);
-	event LogBidExpired(bytes32 _bidId);
-	event LogBidCompleted(bytes32 _bidId);
+	event LogBidOpened(uint _bidId);
+	event LogBidAccepted(uint _bidId);
+	event LogBidCanceled(uint _bidId);
+	event LogBidExpired(uint _bidId);
+	event LogBidCompleted(uint _bidId);
 }
 
