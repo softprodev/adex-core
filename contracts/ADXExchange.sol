@@ -203,9 +203,15 @@ contract ADXExchange is Ownable, Drainable {
 	function claimBidReward(uint _bidId)
 		onlyRegisteredAcc
 		existingBid(_bidId)
+		onlyBidAceptee(_bidId)
+		onlyBidState(_bidId, BidState.Completed)
 	{
 		var bid = bidsById[_bidId];
-		require(bid.publisher == msg.sender);
+		
+		require(!bid.claimed);
+		bid.claimed = true;
+
+		token.transfer(bid.publisherWallet, bid.amount);
 	}
 
 	// This can be done if a bid is accepted, but expired
