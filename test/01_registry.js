@@ -110,6 +110,7 @@ contract('ADXRegistry', function(accounts) {
 			assert.equal(ev.args.name, 'foobar ad unit')
 			assert.equal(ev.args.meta, '{}')
 			assert.equal(ev.args.ipfs, '0x4200000000000000000000000000000000000000000000000000000000000000');
+			assert.equal(ev.args.owner, accOne)
 
 			adunitId = ev.args.id.toNumber()
 
@@ -129,6 +130,7 @@ contract('ADXRegistry', function(accounts) {
 			assert.equal(ev.args.meta, "{ someMeta: 's' }")
 			assert.equal(ev.args.ipfs, '0x4500000000000000000000000000000000000000000000000000000000000000');
 			assert.equal(ev.args.id.toNumber(), adunitId)
+			assert.equal(ev.args.owner, accOne)
 		})
 	})
 	it("can't update another accounts' ad unit", function() {
@@ -191,6 +193,22 @@ contract('ADXRegistry', function(accounts) {
 			assert.equal(res[0], 'foobar campaign')
 			assert.equal(res[1], "{ someMeta: 's' }")
 			assert.equal(res[2], '0x4500000000000000000000000000000000000000000000000000000000000000')
+			assert.equal(res[3], accOne)
+		})
+	})
+
+
+	it("hasItem - item exists", function() {
+		return advRegistry.hasItem(ADUNIT, adunitId)
+		.then(function(res) {
+			assert.equal(res, true)
+		})
+	})
+
+	it("hasItem - item does not exist", function() {
+		return advRegistry.hasItem(ADUNIT, 24135)
+		.then(function(res) {
+			assert.equal(res, false)
 		})
 	})
 })

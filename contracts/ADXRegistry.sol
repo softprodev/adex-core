@@ -97,10 +97,10 @@ contract ADXRegistry is Ownable, Drainable {
 		item.ipfs = _ipfs;
 
 		if (_id == 0) LogItemRegistered(
-			uint(item.itemType), item.id, item.name, item.meta, item.ipfs
+			uint(item.itemType), item.id, item.name, item.meta, item.ipfs, item.owner
 		);
 		else LogItemModified(
-			uint(item.itemType), item.id, item.name, item.meta, item.ipfs
+			uint(item.itemType), item.id, item.name, item.meta, item.ipfs, item.owner
 		);
 	}
 
@@ -145,17 +145,26 @@ contract ADXRegistry is Ownable, Drainable {
 	function getItem(uint _type, uint _id) 
 		constant
 		public
-		returns (string, string, bytes32)
+		returns (string, string, bytes32, address)
 	{
 		var item = items[_type][_id];
 		require(item.id != 0);
-		return (item.name, item.meta, item.ipfs);
+		return (item.name, item.meta, item.ipfs, item.owner);
+	}
+
+	function hasItem(uint _type, uint _id)
+		constant
+		public
+		returns (bool)
+	{
+		var item = items[_type][_id];
+		return item.id != 0;
 	}
 
 	// Events
 	event LogAccountRegistered(address addr, address wallet, string name, string meta);
 	event LogAccountModified(address addr, address wallet, string name, string meta);
 	
-	event LogItemRegistered(uint itemType, uint id, string name, string meta, bytes32 ipfs);
-	event LogItemModified(uint itemType, uint id, string name, string meta, bytes32 ipfs);
+	event LogItemRegistered(uint itemType, uint id, string name, string meta, bytes32 ipfs, address owner);
+	event LogItemModified(uint itemType, uint id, string name, string meta, bytes32 ipfs, address owner);
 }

@@ -11,9 +11,11 @@ contract ADXExchange is Ownable, Drainable {
 	ERC20 token;
 	ADXRegistry registry;
 
-	mapping (bytes32 => Bid) bidsById;
-	mapping (address => mapping (bytes32 => Bid)) bidsByAdvertiser; // bids set out by advertisers
-	mapping (address => mapping (bytes32 => Bid)) bidsByPublisher; // accepted by publisher
+	uint bidsCount;
+
+	mapping (uint => Bid) bidsById;
+	mapping (address => mapping (uint => Bid)) bidsByAdvertiser; // bids set out by advertisers
+	mapping (address => mapping (uint => Bid)) bidsByPublisher; // accepted by publisher
 
 	// corresponds to enum types in ADXRegistry
 	uint constant ADUNIT = 0;
@@ -29,11 +31,14 @@ contract ADXExchange is Ownable, Drainable {
 	}
 
 	struct Bid {
-		bytes32 id;
+		uint id;
 		BidState state;
 
 		// ADX reward amount
 		uint amount;
+
+		// whether it has been claimed
+		bool blaimed;
 
 		// Links on advertiser side
 		address advertiser;
@@ -67,10 +72,36 @@ contract ADXExchange is Ownable, Drainable {
 		bytes32[] peers;
 	}
 
-	modifier onlyRegisteredAcc() { require(registry.isRegistered(msg.sender)); _; }
+	modifier onlyRegisteredAcc() {
+		require(registry.isRegistered(msg.sender));
+		_;
+	}
 
-	modifier onlyBidOwner(bytes32 bidId) { require(msg.sender == bidsById[bidId].advertiser); _; }
-	modifier existingBid(bytes32 bidId) { require(bidsById[bidId].id != 0); _; }
+	modifier onlyBidOwner(uint _bidId) {
+		require(msg.sender == bidsById[_bidId].advertiser);
+		_;
+	}
+
+	modifier onlyBidAceptee(uint _bidId) {
+		require(msg.sender == bidsById[_bidId].publisher);
+		_;
+	}
+
+	modifier onlyBidState(uint _bidId, BidState _state) {
+		require(bidsById[_bidId].id != 0);
+		require(bidsById[_bidId].state == _state);
+		_;
+	}
+
+	modifier existingBid(uint _bidId) {
+		require(bidsById[_bidId].id != 0);
+		_;
+	}
+
+	modifier unexistingBid(uint _bidId) {
+		require(bidsById[_bidId].id == 0);
+		_;
+	}
 
 	// Functions
 
@@ -89,40 +120,55 @@ contract ADXExchange is Ownable, Drainable {
 		onlyRegisteredAcc
 	{
 		bytes32 adIpfs;
-		
+
+		// XXX: should we check ownership of the advertisement? there may be no point; why not allow advertisers place bids for other ad units; sounds like a feature
+		address advertiser;
+		// downside is, that will complicate msg.sender vs advertiser
+
 		// NOTE: this will throw if the ad does not exist
-		(,,adIpfs) = registry.getItem(ADUNIT, _adunitId);
+		(,,adIpfs,advertiser) = registry.getItem(ADUNIT, _adunitId);
 
 		// ADXToken.transferFrom(advertiserWallet, ourAddr)
 		// if that succeeds, we passed that THIS amount of ADX has been locked in the bid
 	}
 
-	function cancelBid(bytes32 _bidId) 
+	function cancelBid(uint _bidId) 
 		onlyRegisteredAcc
 		onlyBidOwner(_bidId)
-		existingBid(_bidId) 
+		existingBid(_bidId)
+		onlyBidState(_bidId, BidState.Open)
 	{
 		
 	}
 
-	function acceptBid(bytes32 _bidId) 
+	function acceptBid(uint _bidId, uint _propId) 
 		onlyRegisteredAcc 
 		existingBid(_bidId) 
-		//openBid(bidId) 
+		onlyBidState(_bidId, BidState.Open)
 	{
-
+		//uint propertyId 
 	}
 
 	// both publisher and advertiser have to call this for a bid to be considered verified; it has to be within margin of error
-	function verifyBid(bytes32 _bidId) 
+	function verifyBid(uint _bidId)
+		onlyRegisteredAcc
 		existingBid(_bidId)
 	{
 
 	}
 
+	// now, claim the reward; callable by the publisher; 
+	function claimBidReward(uint _bidId)
+		onlyRegisteredAcc
+		existingBid(_bidId)
+	{
+		var bid = bidsById[_bidId];
+		require(bid.publisher == msg.sender);
+	}
+
 	// This can be done if a bid is accepted, but expired
 	// This is essentially the protection from never settling on verification, or from publisher not executing the bid within a reasonable time
-	function refundBid(bytes32 _bidId)
+	function refundBid(uint _bidId)
 		onlyRegisteredAcc
 		onlyBidOwner(_bidId)
 	{
