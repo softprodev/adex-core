@@ -17,6 +17,9 @@ contract ADXExchange is Ownable, Drainable {
 	mapping (address => mapping (uint => Bid)) bidsByAdvertiser; // bids set out by advertisers
 	mapping (address => mapping (uint => Bid)) bidsByPublisher; // accepted by publisher
 
+	// TODO: active bids?
+	// TODO: the bid having a adunitType so that this can be filtered out
+
 	// corresponds to enum types in ADXRegistry
 	uint constant ADUNIT = 0;
 	uint constant ADSLOT = 1;
@@ -42,14 +45,15 @@ contract ADXExchange is Ownable, Drainable {
 
 		// Links on advertiser side
 		address advertiser;
+		address advertiserWallet;
 		uint adUnit;
 		bytes32 adUnitIpfs;
-		address advertiserWallet;
 
 		// Links on publisher side
 		address publisher;
-		uint adSlot;
 		address publisherWallet;
+		uint adSlot;
+		bytes32 adSlotIpfs;
 
 		uint acceptedDate; // when was it accepted by a publisher
 
@@ -121,7 +125,7 @@ contract ADXExchange is Ownable, Drainable {
 
 		// NOTE: those will throw if the ad or respectively the account do not exist
 		(advertiser,adIpfs,,) = registry.getItem(ADUNIT, _adunitId);
-		(advertiserWallet,,) = registry.getAccount(advertiser);
+		(advertiserWallet,,,) = registry.getAccount(advertiser);
 
 		// XXX: maybe it could be a feature to allow advertisers bidding on other advertisers' ad units, but it will complicate things...
 		require(advertiser == msg.sender);
@@ -134,9 +138,13 @@ contract ADXExchange is Ownable, Drainable {
 		bid.amount = _rewardAmount;
 
 		bid.advertiser = advertiser;
+		bid.advertiserWallet = advertiserWallet;
+
 		bid.adUnit = _adunitId;
 		bid.adUnitIpfs = adIpfs;
-		bid.advertiserWallet = advertiserWallet;
+
+		bidsById[bid.id] = bid;
+		bidsByAdvertiser[advertiser][bid.id] = bid;
 
 		token.transferFrom(advertiserWallet, address(this), _rewardAmount);
 	}
@@ -147,7 +155,9 @@ contract ADXExchange is Ownable, Drainable {
 		existingBid(_bidId)
 		onlyBidState(_bidId, BidState.Open)
 	{
-		
+		var bid = bidsById[_bidId];
+		bid.state = BidState.Canceled;
+		token.transfer(bid.advertiserWallet, bid.amount);
 	}
 
 	function acceptBid(uint _bidId, uint _slotId) 
@@ -156,8 +166,12 @@ contract ADXExchange is Ownable, Drainable {
 		onlyBidState(_bidId, BidState.Open)
 	{
 		address publisher;
+		address publisherWallet;
+		bytes32 adSlotIpfs;
 
-		(publisher,,,) = registry.getItem(ADSLOT, _slotId);
+		// NOTE: those will throw if the ad slot or respectively the account do not exist
+		(publisher,adSlotIpfs,,) = registry.getItem(ADSLOT, _slotId);
+		(publisherWallet,,,) = registry.getAccount(publisher);
 
 		require(publisher == msg.sender);
 
@@ -165,9 +179,16 @@ contract ADXExchange is Ownable, Drainable {
 
 		// should not happen when bid.state is BidState.Open, but just in case
 		require(bid.publisher == 0);
+
+		bid.state = BidState.Accepted;
 		
 		bid.publisher = publisher;
-		bid.state = BidState.Accepted;
+		bid.publisherWallet = publisherWallet;
+
+		bid.adSlot = _slotId;
+		bid.adSlotIpfs = adSlotIpfs;
+
+		bidsByPublisher[publisher][bid.id] = bid;
 	}
 
 	// both publisher and advertiser have to call this for a bid to be considered verified; it has to be within margin of error
@@ -194,21 +215,6 @@ contract ADXExchange is Ownable, Drainable {
 		onlyBidOwner(_bidId)
 	{
 
-	}
-
-	function revokeAndRefundBid(Bid bid, BidState newState)
-		internal
-	{
-		// evaluate if existing state is sane (possible to refund)
-
-		// set bid state
-		// evaluate if newState is Canceled or Expired
-
-		// allow newState to be Canceled only if current state is Open
-		// allow newState to be Expired only if current state is Accepted
-
-		bid.state = newState;
-		//token.transfer(bid.advertiserWallet, bid.amount);
 	}
 
 	//
