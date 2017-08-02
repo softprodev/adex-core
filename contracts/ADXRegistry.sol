@@ -122,14 +122,15 @@ contract ADXRegistry is Ownable, Drainable {
 	}
 
 	// Functions exposed for web3 interface
+	// NOTE: this is sticking to the policy of keeping static-sized values at the left side of tuples
 	function getAccount(address _acc)
 		constant
 		public
-		returns (string, address, string)
+		returns (address, string, string)
 	{
 		var acc = accounts[_acc];
 		require(acc.addr != 0);
-		return (acc.name, acc.wallet, acc.meta);
+		return (acc.wallet, acc.name, acc.meta);
 	}
 
 	function getAccountItems(address _acc, uint _type)

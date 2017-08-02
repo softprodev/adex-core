@@ -172,8 +172,8 @@ contract('ADXRegistry', function(accounts) {
 	it("can get an account, account meta correct", function() {
 		return advRegistry.getAccount(accOne)
 		.then(function(res) {
-			assert.equal(res[0], 'stremio')
-			assert.equal(res[1], wallet)
+			assert.equal(res[0], wallet)
+			assert.equal(res[1], 'stremio')
 			assert.equal(res[2], '{ "email": "office@strem.io" }')
 		})
 	})

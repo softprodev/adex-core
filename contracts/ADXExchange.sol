@@ -19,7 +19,7 @@ contract ADXExchange is Ownable, Drainable {
 
 	// corresponds to enum types in ADXRegistry
 	uint constant ADUNIT = 0;
-	uint constant PROPERTY = 1;
+	uint constant ADSLOT = 1;
 
 	enum BidState { 
 		Open, 
@@ -37,18 +37,18 @@ contract ADXExchange is Ownable, Drainable {
 		// ADX reward amount
 		uint amount;
 
-		// whether it has been claimed
-		bool blaimed;
+		// whether the reward has been claimed
+		bool claimed;
 
 		// Links on advertiser side
 		address advertiser;
-		bytes32 campaign;
+		uint adUnit;
+		bytes32 adUnitIpfs;
 		address advertiserWallet;
 
 		// Links on publisher side
 		address publisher;
-		bytes32 channel;
-		bytes32 adProperty;
+		uint adSlot;
 		address publisherWallet;
 
 		uint acceptedDate; // when was it accepted by a publisher
@@ -112,23 +112,36 @@ contract ADXExchange is Ownable, Drainable {
 	// Bid actions
 	// 
 
-	function placeBid(uint _adunitId)
+	function placeBid(uint _adunitId, uint _rewardAmount)
 		onlyRegisteredAcc
 	{
 		bytes32 adIpfs;
 		address advertiser;
+		address advertiserWallet;
 
-		// NOTE: this will throw if the ad does not exist
+		// NOTE: those will throw if the ad or respectively the account do not exist
 		(advertiser,adIpfs,,) = registry.getItem(ADUNIT, _adunitId);
+		(advertiserWallet,,) = registry.getAccount(advertiser);
 
 		// XXX: maybe it could be a feature to allow advertisers bidding on other advertisers' ad units, but it will complicate things...
 		require(advertiser == msg.sender);
 
-		// ADXToken.transferFrom(advertiserWallet, ourAddr)
-		// if that succeeds, we passed that THIS amount of ADX has been locked in the bid
+		Bid bid;
+
+		bid.id = ++bidsCount; // start from 1, so that 0 is not a valid ID
+		bid.state = BidState.Open; // XXX redundant, but done for code clarity
+
+		bid.amount = _rewardAmount;
+
+		bid.advertiser = advertiser;
+		bid.adUnit = _adunitId;
+		bid.adUnitIpfs = adIpfs;
+		bid.advertiserWallet = advertiserWallet;
+
+		token.transferFrom(advertiserWallet, address(this), _rewardAmount);
 	}
 
-	function cancelBid(uint _bidId) 
+	function cancelBid(uint _bidId)
 		onlyRegisteredAcc
 		onlyBidOwner(_bidId)
 		existingBid(_bidId)
@@ -137,12 +150,24 @@ contract ADXExchange is Ownable, Drainable {
 		
 	}
 
-	function acceptBid(uint _bidId, uint _propId) 
+	function acceptBid(uint _bidId, uint _slotId) 
 		onlyRegisteredAcc 
 		existingBid(_bidId) 
 		onlyBidState(_bidId, BidState.Open)
 	{
-		//uint propertyId 
+		address publisher;
+
+		(publisher,,,) = registry.getItem(ADSLOT, _slotId);
+
+		require(publisher == msg.sender);
+
+		var bid = bidsById[_bidId];
+
+		// should not happen when bid.state is BidState.Open, but just in case
+		require(bid.publisher == 0);
+		
+		bid.publisher = publisher;
+		bid.state = BidState.Accepted;
 	}
 
 	// both publisher and advertiser have to call this for a bid to be considered verified; it has to be within margin of error
