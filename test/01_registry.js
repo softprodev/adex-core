@@ -160,7 +160,7 @@ contract('ADXRegistry', function(accounts) {
 			web3.eth.sendTransaction({
 				from: accOne,
 				to: advRegistry.address,
-				value: 1*10**18,
+				value: 1*Math.pow(10,18),
 				gas: 130000
 			}, (err) => {
 				assert.equal(err.message, 'VM Exception while processing transaction: invalid opcode')
