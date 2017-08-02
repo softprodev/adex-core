@@ -119,7 +119,7 @@ contract ADXExchange is Ownable, Drainable {
 		address advertiser;
 
 		// NOTE: this will throw if the ad does not exist
-		(,,adIpfs,advertiser) = registry.getItem(ADUNIT, _adunitId);
+		(advertiser,adIpfs,,) = registry.getItem(ADUNIT, _adunitId);
 
 		// XXX: maybe it could be a feature to allow advertisers bidding on other advertisers' ad units, but it will complicate things...
 		require(advertiser == msg.sender);

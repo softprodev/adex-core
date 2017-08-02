@@ -145,11 +145,11 @@ contract ADXRegistry is Ownable, Drainable {
 	function getItem(uint _type, uint _id) 
 		constant
 		public
-		returns (string, string, bytes32, address)
+		returns (address, bytes32, string, string)
 	{
 		var item = items[_type][_id];
 		require(item.id != 0);
-		return (item.name, item.meta, item.ipfs, item.owner);
+		return (item.owner, item.ipfs, item.name, item.meta);
 	}
 
 	function hasItem(uint _type, uint _id)

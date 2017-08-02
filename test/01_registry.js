@@ -190,10 +190,10 @@ contract('ADXRegistry', function(accounts) {
 	it("can get a single item", function() {
 		return advRegistry.getItem(ADUNIT, adunitId)
 		.then(function(res) {
-			assert.equal(res[0], 'foobar campaign')
-			assert.equal(res[1], "{ someMeta: 's' }")
-			assert.equal(res[2], '0x4500000000000000000000000000000000000000000000000000000000000000')
-			assert.equal(res[3], accOne)
+			assert.equal(res[0], accOne)
+			assert.equal(res[1], '0x4500000000000000000000000000000000000000000000000000000000000000')
+			assert.equal(res[2], 'foobar campaign')
+			assert.equal(res[3], "{ someMeta: 's' }")
 		})
 	})
 
