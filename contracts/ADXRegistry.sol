@@ -8,7 +8,7 @@ contract ADXRegistry is Ownable, Drainable {
 
 	// Structure:
 	// AdUnit (advertiser) - a unit of a single advertisement
-	// Property (publisher) - a particular property that can display an ad unit
+	// AdSlot (publisher) - a particular property (slot) that can display an ad unit
 	// Campaign (advertiser) - group of ad units ; not vital
 	// Channel (publisher) - group of properties ; not vital
 	// Each Account is linked to all the items they own through the Account struct
@@ -16,7 +16,7 @@ contract ADXRegistry is Ownable, Drainable {
 	mapping (address => Account) public accounts;
 
 	// XXX: mostly unused, because solidity does not allow mapping with enum as primary type.. :( we just use uint
-	enum ItemType { AdUnit, Property, Campaign, Channel }
+	enum ItemType { AdUnit, AdSlot, Campaign, Channel }
 
 	// uint here corresponds to the ItemType
 	mapping (uint => uint) public counts;
@@ -34,7 +34,7 @@ contract ADXRegistry is Ownable, Drainable {
 		mapping (uint => uint[]) items;
 	}
 
-	// Sub-item, such as AdUnit, Property, Campaign, Channel
+	// Sub-item, such as AdUnit, AdSlot, Campaign, Channel
 	struct Item {
 		uint id;
 		address owner;
