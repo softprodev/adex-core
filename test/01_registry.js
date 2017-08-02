@@ -19,7 +19,7 @@ contract('ADXRegistry', function(accounts) {
 
 	it("can't register a property w/o being an account", function() {
 		return new Promise((resolve, reject) => {
-			advRegistry.registerItem(PROPERTY, 0, "test campaign", "{}", 0, {
+			advRegistry.registerItem(PROPERTY, 0, 0, "test campaign", "{}", {
 				from: accOne,
 				gas: 130000
 			}).catch((err) => {
@@ -31,7 +31,7 @@ contract('ADXRegistry', function(accounts) {
 
 	it("can't register an ad unit w/o being an account", function() {
 		return new Promise((resolve, reject) => {
-			advRegistry.registerItem(ADUNIT, 0, "blank name", "blank meta", 0, {
+			advRegistry.registerItem(ADUNIT, 0, 0, "blank name", "blank meta", {
 				from: accOne,
 				gas: 130000
 			}).catch((err) => {
@@ -44,7 +44,7 @@ contract('ADXRegistry', function(accounts) {
 
 	it("can't register as a publisher w/o a wallet", function() {
 		return new Promise((resolve, reject) => {
-			advRegistry.register("stremio", 0, "{}", {
+			advRegistry.register("stremio", 0, 0x47, "{}", {
 				from: accOne,
 				gas: 130000
 			}).catch((err) => {
@@ -62,7 +62,7 @@ contract('ADXRegistry', function(accounts) {
 	})
 
 	it("can register as an account", function() {
-		return advRegistry.register("stremio", wallet, "{}", {
+		return advRegistry.register("stremio", wallet, 0x47, "{}", {
 			from: accOne,
 			gas: 130000
 		}).then(function(res) {
@@ -70,6 +70,8 @@ contract('ADXRegistry', function(accounts) {
 			if (! ev) throw 'no event'
 			assert.equal(ev.event, 'LogAccountRegistered')
 			assert.equal(ev.args.addr, accOne)
+			assert.equal(web3.toUtf8(ev.args.name), 'stremio')
+			assert.equal(ev.args.ipfs, '0x4700000000000000000000000000000000000000000000000000000000000000');
 			assert.equal(ev.args.wallet, wallet)
 			assert.equal(ev.args.meta, '{}')
 		})
@@ -83,7 +85,7 @@ contract('ADXRegistry', function(accounts) {
 	})
 
 	it("can update account info", function() {
-		return advRegistry.register("stremio", wallet, '{ "email": "office@strem.io" }', {
+		return advRegistry.register("stremio", wallet, 0x42, '{ "email": "office@strem.io" }', {
 			from: accOne,
 			gas: 130000
 		}).then(function(res) {
@@ -91,6 +93,8 @@ contract('ADXRegistry', function(accounts) {
 			if (! ev) throw 'no event'
 			assert.equal(ev.event, 'LogAccountModified')
 			assert.equal(ev.args.addr, accOne)
+			assert.equal(web3.toUtf8(ev.args.name), 'stremio')
+			assert.equal(ev.args.ipfs, '0x4200000000000000000000000000000000000000000000000000000000000000')
 			assert.equal(ev.args.wallet, wallet)
 			assert.equal(ev.args.meta, '{ "email": "office@strem.io" }')
 		})
@@ -98,7 +102,7 @@ contract('ADXRegistry', function(accounts) {
 
 	var adunitId;
 	it("can register a new ad unit", function() {
-		return advRegistry.registerItem(ADUNIT, 0, "foobar ad unit", "{}", 0x42, {
+		return advRegistry.registerItem(ADUNIT, 0, 0x42, "foobar ad unit", "{}", {
 			from: accOne,
 			gas: 230000
 		}).then(function(res) {
@@ -107,7 +111,7 @@ contract('ADXRegistry', function(accounts) {
 			assert.equal(ev.event, 'LogItemRegistered')
 			assert.equal(ev.args.itemType, ADUNIT);
 			assert.equal(ev.args.id, 1)
-			assert.equal(ev.args.name, 'foobar ad unit')
+			assert.equal(web3.toUtf8(ev.args.name), 'foobar ad unit')
 			assert.equal(ev.args.meta, '{}')
 			assert.equal(ev.args.ipfs, '0x4200000000000000000000000000000000000000000000000000000000000000');
 			assert.equal(ev.args.owner, accOne)
@@ -118,7 +122,7 @@ contract('ADXRegistry', function(accounts) {
 		})
 	})
 	it("can update an ad unit", function() {
-		return advRegistry.registerItem(ADUNIT, adunitId, "foobar campaign", "{ someMeta: 's' }", 0x45, {
+		return advRegistry.registerItem(ADUNIT, adunitId, 0x45, "foobar campaign", "{ someMeta: 's' }", {
 			from: accOne,
 			gas: 230000
 		}).then(function(res) {
@@ -126,7 +130,7 @@ contract('ADXRegistry', function(accounts) {
 			if (! ev) throw 'no event'
 			assert.equal(ev.event, 'LogItemModified')
 			assert.equal(ev.args.itemType, ADUNIT);
-			assert.equal(ev.args.name, 'foobar campaign')
+			assert.equal(web3.toUtf8(ev.args.name), 'foobar campaign')
 			assert.equal(ev.args.meta, "{ someMeta: 's' }")
 			assert.equal(ev.args.ipfs, '0x4500000000000000000000000000000000000000000000000000000000000000');
 			assert.equal(ev.args.id.toNumber(), adunitId)
@@ -135,7 +139,7 @@ contract('ADXRegistry', function(accounts) {
 	})
 	it("can't update another accounts' ad unit", function() {
 		return new Promise((resolve, reject) => {
-			advRegistry.registerItem(ADUNIT, adunitId, "foobar campaign", "{ someMeta: 'sx' }", 0x45, {
+			advRegistry.registerItem(ADUNIT, adunitId, 0x45, "foobar campaign", "{ someMeta: 'sx' }", {
 				from: web3.eth.accounts[3],
 				gas: 230000
 			}).catch((err) => {
@@ -173,8 +177,9 @@ contract('ADXRegistry', function(accounts) {
 		return advRegistry.getAccount(accOne)
 		.then(function(res) {
 			assert.equal(res[0], wallet)
-			assert.equal(res[1], 'stremio')
-			assert.equal(res[2], '{ "email": "office@strem.io" }')
+			assert.equal(res[1], '0x4200000000000000000000000000000000000000000000000000000000000000')
+			assert.equal(web3.toUtf8(res[2]), 'stremio')
+			assert.equal(res[3], '{ "email": "office@strem.io" }')
 		})
 	})
 
@@ -192,7 +197,7 @@ contract('ADXRegistry', function(accounts) {
 		.then(function(res) {
 			assert.equal(res[0], accOne)
 			assert.equal(res[1], '0x4500000000000000000000000000000000000000000000000000000000000000')
-			assert.equal(res[2], 'foobar campaign')
+			assert.equal(web3.toUtf8(res[2]), 'foobar campaign')
 			assert.equal(res[3], "{ someMeta: 's' }")
 		})
 	})

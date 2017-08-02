@@ -27,9 +27,10 @@ contract ADXRegistry is Ownable, Drainable {
 		address addr;
 		address wallet;
 
-		string name;
-		string meta;
-
+		bytes32 ipfs; // ipfs addr for additional (larger) meta
+		bytes32 name; // name
+		string meta; // metadata, can be JSON, can be other format, depends on the high-level implementation
+		
 		// Items, by type, then in an array of numeric IDs	
 		mapping (uint => uint[]) items;
 	}
@@ -41,9 +42,9 @@ contract ADXRegistry is Ownable, Drainable {
 
 		ItemType itemType;
 
-		string name; // name, 
+		bytes32 ipfs; // ipfs addr for additional (larger) meta
+		bytes32 name; // name
 		string meta; // metadata, can be JSON, can be other format, depends on the high-level implementation
-		bytes32 ipfs; // ipfs addr for additional (larger) meta		
 	}
 
 	modifier onlyRegistered() {
@@ -54,7 +55,7 @@ contract ADXRegistry is Ownable, Drainable {
 
 	// can be called over and over to update the data
 	// XXX consider entrance barrier, such as locking in some ADX
-	function register(string _name, address _wallet, string _meta)
+	function register(bytes32 _name, address _wallet, bytes32 _ipfs, string _meta)
 		external
 	{
 		require(_wallet != 0);
@@ -63,16 +64,17 @@ contract ADXRegistry is Ownable, Drainable {
 
 		var acc = accounts[msg.sender];
 		acc.addr = msg.sender;
-		acc.name = _name;
 		acc.wallet = _wallet;
+		acc.ipfs = _ipfs;
+		acc.name = _name;
 		acc.meta = _meta;
 
-		if (isNew) LogAccountRegistered(acc.addr, acc.wallet, acc.name, acc.meta);
-		else LogAccountModified(acc.addr, acc.wallet, acc.name, acc.meta);
+		if (isNew) LogAccountRegistered(acc.addr, acc.wallet, acc.ipfs, acc.name, acc.meta);
+		else LogAccountModified(acc.addr, acc.wallet, acc.ipfs, acc.name, acc.meta);
 	}
 
 	// use _id = 0 to create a new item, otherwise modify existing
-	function registerItem(uint _type, uint _id, string _name, string _meta, bytes32 _ipfs)
+	function registerItem(uint _type, uint _id, bytes32 _ipfs, bytes32 _name, string _meta)
 		onlyRegistered
 	{
 		// XXX _type sanity check?
@@ -97,10 +99,10 @@ contract ADXRegistry is Ownable, Drainable {
 		item.ipfs = _ipfs;
 
 		if (_id == 0) LogItemRegistered(
-			uint(item.itemType), item.id, item.name, item.meta, item.ipfs, item.owner
+			item.owner, uint(item.itemType), item.id, item.ipfs, item.name, item.meta
 		);
 		else LogItemModified(
-			uint(item.itemType), item.id, item.name, item.meta, item.ipfs, item.owner
+			item.owner, uint(item.itemType), item.id, item.ipfs, item.name, item.meta
 		);
 	}
 
@@ -126,11 +128,11 @@ contract ADXRegistry is Ownable, Drainable {
 	function getAccount(address _acc)
 		constant
 		public
-		returns (address, string, string)
+		returns (address, bytes32, bytes32, string)
 	{
 		var acc = accounts[_acc];
 		require(acc.addr != 0);
-		return (acc.wallet, acc.name, acc.meta);
+		return (acc.wallet, acc.ipfs, acc.name, acc.meta);
 	}
 
 	function getAccountItems(address _acc, uint _type)
@@ -146,7 +148,7 @@ contract ADXRegistry is Ownable, Drainable {
 	function getItem(uint _type, uint _id) 
 		constant
 		public
-		returns (address, bytes32, string, string)
+		returns (address, bytes32, bytes32, string)
 	{
 		var item = items[_type][_id];
 		require(item.id != 0);
@@ -163,9 +165,9 @@ contract ADXRegistry is Ownable, Drainable {
 	}
 
 	// Events
-	event LogAccountRegistered(address addr, address wallet, string name, string meta);
-	event LogAccountModified(address addr, address wallet, string name, string meta);
+	event LogAccountRegistered(address addr, address wallet, bytes32 ipfs, bytes32 name, string meta);
+	event LogAccountModified(address addr, address wallet, bytes32 ipfs, bytes32 name, string meta);
 	
-	event LogItemRegistered(uint itemType, uint id, string name, string meta, bytes32 ipfs, address owner);
-	event LogItemModified(uint itemType, uint id, string name, string meta, bytes32 ipfs, address owner);
+	event LogItemRegistered(address owner, uint itemType, uint id, bytes32 ipfs, bytes32 name, string meta);
+	event LogItemModified(address owner, uint itemType, uint id, bytes32 ipfs, bytes32 name, string meta);
 }
