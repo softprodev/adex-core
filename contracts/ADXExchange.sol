@@ -64,6 +64,8 @@ contract ADXExchange is Ownable, Drainable {
 
 		// Results
 		uint achievedPoints;
+		bool confirmedByPublisher;
+		bool confirmedByAdvertiser;
 
 		// Additional payload
 		bytes32[] payload;
@@ -147,6 +149,8 @@ contract ADXExchange is Ownable, Drainable {
 		bidsByAdvertiser[advertiser][bid.id] = bid;
 
 		token.transferFrom(advertiserWallet, address(this), _rewardAmount);
+
+		LogBidOpened(bid.id);
 	}
 
 	function cancelBid(uint _bidId)
@@ -158,6 +162,8 @@ contract ADXExchange is Ownable, Drainable {
 		var bid = bidsById[_bidId];
 		bid.state = BidState.Canceled;
 		token.transfer(bid.advertiserWallet, bid.amount);
+
+		LogBidCanceled(bid.id);
 	}
 
 	function acceptBid(uint _bidId, uint _slotId) 
@@ -188,7 +194,11 @@ contract ADXExchange is Ownable, Drainable {
 		bid.adSlot = _slotId;
 		bid.adSlotIpfs = adSlotIpfs;
 
+		bid.acceptedDate = now;
+
 		bidsByPublisher[publisher][bid.id] = bid;
+
+		LogBidAccepted(bid.id);
 	}
 
 	// both publisher and advertiser have to call this for a bid to be considered verified; it has to be within margin of error
@@ -196,7 +206,16 @@ contract ADXExchange is Ownable, Drainable {
 		onlyRegisteredAcc
 		existingBid(_bidId)
 	{
+		var bid = bidsById[_bidId];
 
+		require(bid.publisher == msg.sender || bid.advertiser == msg.sender);
+
+		if (bid.publisher == msg.sender) bid.confirmedByPublisher = true;
+		if (bid.advertiser == msg.sender) bid.confirmedByAdvertiser = true;
+		if (bid.confirmedByAdvertiser && bid.confirmedByPublisher) {
+			bid.state = BidState.Completed;
+			LogBidCompleted(bid.id);
+		}
 	}
 
 	// now, claim the reward; callable by the publisher; 
