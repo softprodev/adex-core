@@ -202,9 +202,6 @@ contract('ADXRegistry', function(accounts) {
 		})
 	})
 
-
-	// TODO: can drain tokens if accidently sent
-
 	it("can't send ether accidently", function() {
 		return new Promise((resolve, reject) => {
 			web3.eth.sendTransaction({
@@ -221,8 +218,8 @@ contract('ADXRegistry', function(accounts) {
 
 	var adxToken;
 	it("create adx mock token", function() {
-		return ADXMock.new({ from: accOne }).then(function(_advToken) {
-			adxToken = _advToken
+		return ADXMock.new({ from: accOne }).then(function(_adxToken) {
+			adxToken = _adxToken
 		})
 	})
 

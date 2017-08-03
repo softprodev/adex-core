@@ -110,8 +110,7 @@ contract ADXExchange is Ownable, Drainable {
 
 	// Functions
 
-	function setAddresses(address _token, address _registry)
-		onlyOwner 
+	function ADXExchange(address _token, address _registry)
 	{
 		token = ERC20(_token);
 		registry = ADXRegistry(_registry);
