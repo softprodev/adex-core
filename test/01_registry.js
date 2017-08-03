@@ -1,4 +1,5 @@
 var ADXRegistry = artifacts.require("./ADXRegistry.sol");
+var ADXMock = artifacts.require("./ADXMock.sol"); // adx mock token
 var Promise = require('bluebird')
 var time = require('../helpers/time')
 
@@ -154,24 +155,8 @@ contract('ADXRegistry', function(accounts) {
 	// can drain ether: can't test that, because we can't send ether in the first place...
 	// maybe figure out a way to test it?
 
-	// TODO: can drain tokens if accidently sent
-
 	// TODO: all the *get methods 
 	// also test if they are callable for non-registered accounts
-
-	it("can't send ether accidently", function() {
-		return new Promise((resolve, reject) => {
-			web3.eth.sendTransaction({
-				from: accOne,
-				to: advRegistry.address,
-				value: 1*Math.pow(10,18),
-				gas: 130000
-			}, (err) => {
-				assert.equal(err.message, 'VM Exception while processing transaction: invalid opcode')
-				resolve()
-			})
-		})
-	})
 
 	it("can get an account, account meta correct", function() {
 		return advRegistry.getAccount(accOne)
@@ -216,4 +201,32 @@ contract('ADXRegistry', function(accounts) {
 			assert.equal(res, false)
 		})
 	})
+
+
+	// TODO: can drain tokens if accidently sent
+
+	it("can't send ether accidently", function() {
+		return new Promise((resolve, reject) => {
+			web3.eth.sendTransaction({
+				from: accOne,
+				to: advRegistry.address,
+				value: 1*Math.pow(10,18),
+				gas: 130000
+			}, (err) => {
+				assert.equal(err.message, 'VM Exception while processing transaction: invalid opcode')
+				resolve()
+			})
+		})
+	})
+
+	var adxToken;
+	it("create adx mock token", function() {
+		return ADXMock.new({ from: accOne }).then(function(_advToken) {
+			adxToken = _advToken
+		})
+	})
+
+	/*it("can recover accidently sent tokens", function() {
+		adxToken.transfer(advRegistry.address, 100*10000, { from: accOne })
+	})*/
 })
