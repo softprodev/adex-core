@@ -22,5 +22,4 @@ contract ADXMock is StandardToken {
     totalSupply = INITIAL_SUPPLY;
     balances[msg.sender] = INITIAL_SUPPLY;
   }
-
 }

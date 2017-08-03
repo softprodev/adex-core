@@ -98,7 +98,7 @@ contract('ADXExchange', function(accounts) {
 	})
 
 	it("give some tokens to accTwo so they can place a bid", function() {
-		return adxToken.transfer(accTwo, 50 * 10000, { from: accOne })
+		return adxToken.transfer(advWallet, 50 * 10000, { from: accOne })
 	})
 
 	it("cant place a bid because of allowance", function() {
@@ -114,7 +114,7 @@ contract('ADXExchange', function(accounts) {
 	})
 
 	it("give allowance to transfer so we can place a bid", function() {
-		return adxToken.approve(advWallet, 50 * 10000)
+		return adxToken.approve(adxExchange.address, 50 * 10000, { from: advWallet })
 	})
 
 	it("can place a bid", function() {

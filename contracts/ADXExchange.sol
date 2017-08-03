@@ -134,7 +134,7 @@ contract ADXExchange is Ownable, Drainable {
 		// XXX: maybe it could be a feature to allow advertisers bidding on other advertisers' ad units, but it will complicate things...
 		require(advertiser == msg.sender);
 
-		Bid bid;
+		Bid memory bid;
 
 		bid.id = ++bidsCount; // start from 1, so that 0 is not a valid ID
 		bid.state = BidState.Open; // XXX redundant, but done for code clarity
