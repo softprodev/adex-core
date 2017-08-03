@@ -121,6 +121,10 @@ contract('ADXExchange', function(accounts) {
 		return adxExchange.placeBid(adunitId, 50 * 10000, {
 			from: accTwo,
 			gas: 860000 // costly :((
+		}).then(function() {
+			return adxToken.balanceOf(adxExchange.address)
+		}).then(function(bal) {
+			assert.equal(bal.toNumber(), 50 * 10000)
 		})
 	})
 })
