@@ -10,17 +10,17 @@ contract('ADXRegistry', function(accounts) {
 	var ADUNIT = 0 
 	var PROPERTY = 1
 
-	var advRegistry 
+	var adxRegistry 
 
 	it("initialize contract", function() {
-		return ADXRegistry.new().then(function(_advRegistry) {
-			advRegistry = _advRegistry
+		return ADXRegistry.new().then(function(_adxRegistry) {
+			adxRegistry = _adxRegistry
 		})
 	});
 
 	it("can't register a property w/o being an account", function() {
 		return new Promise((resolve, reject) => {
-			advRegistry.registerItem(PROPERTY, 0, 0, "test campaign", "{}", {
+			adxRegistry.registerItem(PROPERTY, 0, 0, "test campaign", "{}", {
 				from: accOne,
 				gas: 130000
 			}).catch((err) => {
@@ -32,7 +32,7 @@ contract('ADXRegistry', function(accounts) {
 
 	it("can't register an ad unit w/o being an account", function() {
 		return new Promise((resolve, reject) => {
-			advRegistry.registerItem(ADUNIT, 0, 0, "blank name", "blank meta", {
+			adxRegistry.registerItem(ADUNIT, 0, 0, "blank name", "blank meta", {
 				from: accOne,
 				gas: 130000
 			}).catch((err) => {
@@ -45,7 +45,7 @@ contract('ADXRegistry', function(accounts) {
 
 	it("can't register as a publisher w/o a wallet", function() {
 		return new Promise((resolve, reject) => {
-			advRegistry.register("stremio", 0, 0x47, "{}", {
+			adxRegistry.register("stremio", 0, 0x47, "{}", {
 				from: accOne,
 				gas: 130000
 			}).catch((err) => {
@@ -56,14 +56,14 @@ contract('ADXRegistry', function(accounts) {
 	})
 
 	it("account not registered", function() {
-		return advRegistry.isRegistered(accOne)
+		return adxRegistry.isRegistered(accOne)
 		.then(function(isReg) {
 			assert.equal(isReg, false)
 		})
 	})
 
 	it("can register as an account", function() {
-		return advRegistry.register("stremio", wallet, 0x47, "{}", {
+		return adxRegistry.register("stremio", wallet, 0x47, "{}", {
 			from: accOne,
 			gas: 130000
 		}).then(function(res) {
@@ -79,14 +79,14 @@ contract('ADXRegistry', function(accounts) {
 	})
 
 	it("account is registered", function() {
-		return advRegistry.isRegistered(accOne)
+		return adxRegistry.isRegistered(accOne)
 		.then(function(isReg) { 
 			assert.equal(isReg, true)
 		})
 	})
 
 	it("can update account info", function() {
-		return advRegistry.register("stremio", wallet, 0x42, '{ "email": "office@strem.io" }', {
+		return adxRegistry.register("stremio", wallet, 0x42, '{ "email": "office@strem.io" }', {
 			from: accOne,
 			gas: 130000
 		}).then(function(res) {
@@ -103,7 +103,7 @@ contract('ADXRegistry', function(accounts) {
 
 	var adunitId;
 	it("can register a new ad unit", function() {
-		return advRegistry.registerItem(ADUNIT, 0, 0x42, "foobar ad unit", "{}", {
+		return adxRegistry.registerItem(ADUNIT, 0, 0x42, "foobar ad unit", "{}", {
 			from: accOne,
 			gas: 230000
 		}).then(function(res) {
@@ -123,7 +123,7 @@ contract('ADXRegistry', function(accounts) {
 		})
 	})
 	it("can update an ad unit", function() {
-		return advRegistry.registerItem(ADUNIT, adunitId, 0x45, "foobar campaign", "{ someMeta: 's' }", {
+		return adxRegistry.registerItem(ADUNIT, adunitId, 0x45, "foobar campaign", "{ someMeta: 's' }", {
 			from: accOne,
 			gas: 230000
 		}).then(function(res) {
@@ -140,7 +140,7 @@ contract('ADXRegistry', function(accounts) {
 	})
 	it("can't update another accounts' ad unit", function() {
 		return new Promise((resolve, reject) => {
-			advRegistry.registerItem(ADUNIT, adunitId, 0x45, "foobar campaign", "{ someMeta: 'sx' }", {
+			adxRegistry.registerItem(ADUNIT, adunitId, 0x45, "foobar campaign", "{ someMeta: 'sx' }", {
 				from: web3.eth.accounts[3],
 				gas: 230000
 			}).catch((err) => {
@@ -159,7 +159,7 @@ contract('ADXRegistry', function(accounts) {
 	// also test if they are callable for non-registered accounts
 
 	it("can get an account, account meta correct", function() {
-		return advRegistry.getAccount(accOne)
+		return adxRegistry.getAccount(accOne)
 		.then(function(res) {
 			assert.equal(res[0], wallet)
 			assert.equal(res[1], '0x4200000000000000000000000000000000000000000000000000000000000000')
@@ -169,7 +169,7 @@ contract('ADXRegistry', function(accounts) {
 	})
 
 	it("can get items for an acc", function() {
-		return advRegistry.getAccountItems(accOne, ADUNIT)
+		return adxRegistry.getAccountItems(accOne, ADUNIT)
 		.then(function(res) {
 			assert.equal(res.length, 1)
 			assert.equal(res[0].toNumber(), adunitId)
@@ -178,7 +178,7 @@ contract('ADXRegistry', function(accounts) {
 
 
 	it("can get a single item", function() {
-		return advRegistry.getItem(ADUNIT, adunitId)
+		return adxRegistry.getItem(ADUNIT, adunitId)
 		.then(function(res) {
 			assert.equal(res[0], accOne)
 			assert.equal(res[1], '0x4500000000000000000000000000000000000000000000000000000000000000')
@@ -189,14 +189,14 @@ contract('ADXRegistry', function(accounts) {
 
 
 	it("hasItem - item exists", function() {
-		return advRegistry.hasItem(ADUNIT, adunitId)
+		return adxRegistry.hasItem(ADUNIT, adunitId)
 		.then(function(res) {
 			assert.equal(res, true)
 		})
 	})
 
 	it("hasItem - item does not exist", function() {
-		return advRegistry.hasItem(ADUNIT, 24135)
+		return adxRegistry.hasItem(ADUNIT, 24135)
 		.then(function(res) {
 			assert.equal(res, false)
 		})
@@ -209,7 +209,7 @@ contract('ADXRegistry', function(accounts) {
 		return new Promise((resolve, reject) => {
 			web3.eth.sendTransaction({
 				from: accOne,
-				to: advRegistry.address,
+				to: adxRegistry.address,
 				value: 1*Math.pow(10,18),
 				gas: 130000
 			}, (err) => {
@@ -226,7 +226,11 @@ contract('ADXRegistry', function(accounts) {
 		})
 	})
 
-	/*it("can recover accidently sent tokens", function() {
-		adxToken.transfer(advRegistry.address, 100*10000, { from: accOne })
+	/*
+	it("can recover accidently sent tokens", function() {
+		return adxToken.transfer(adxRegistry.address, 100*10000, { from: accOne })
+		.then(function() {
+			adxToken.balanceOf(adxRegistry.address)
+		})
 	})*/
 })
