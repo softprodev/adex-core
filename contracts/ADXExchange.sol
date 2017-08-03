@@ -74,6 +74,9 @@ contract ADXExchange is Ownable, Drainable {
 		bytes32[] peers;
 	}
 
+	//
+	// MODIFIERS
+	//
 	modifier onlyRegisteredAcc() {
 		require(registry.isRegistered(msg.sender));
 		_;
