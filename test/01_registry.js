@@ -226,11 +226,21 @@ contract('ADXRegistry', function(accounts) {
 		})
 	})
 
-	/*
 	it("can recover accidently sent tokens", function() {
 		return adxToken.transfer(adxRegistry.address, 100*10000, { from: accOne })
 		.then(function() {
-			adxToken.balanceOf(adxRegistry.address)
+			return adxToken.balanceOf(adxRegistry.address)
 		})
-	})*/
+		.then(function(balance) {
+			assert.equal(balance.toNumber(), 100*10000)
+
+			return adxRegistry.withdrawToken(adxToken.address, { from: accOne })
+		})
+		.then(function() {
+			return adxToken.balanceOf(accOne)
+		})
+		.then(function(balance) {
+			assert.equal(balance.toNumber(), 100 * 1000 * 1000 * 10000)
+		})
+	})
 })

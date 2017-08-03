@@ -13,7 +13,7 @@ contract ADXMock is StandardToken {
   string public name = "AdEx Token";
   string public symbol = "ADX";
   uint256 public decimals = 4;
-  uint256 public INITIAL_SUPPLY = 100*1000*1000;
+  uint256 public INITIAL_SUPPLY = 100*1000*1000*10000;
 
   /**
    * @dev Contructor that gives msg.sender all of existing tokens. 
