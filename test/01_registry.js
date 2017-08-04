@@ -12,6 +12,8 @@ contract('ADXRegistry', function(accounts) {
 
 	var adxRegistry 
 
+	var SIG = 0x420000000000000002300023400022000000000000000000000000000000000
+
 	it("initialize contract", function() {
 		return ADXRegistry.new().then(function(_adxRegistry) {
 			adxRegistry = _adxRegistry
@@ -45,7 +47,7 @@ contract('ADXRegistry', function(accounts) {
 
 	it("can't register as a publisher w/o a wallet", function() {
 		return new Promise((resolve, reject) => {
-			adxRegistry.register("stremio", 0, 0x47, "{}", {
+			adxRegistry.register("stremio", 0, 0x47, SIG, "{}", {
 				from: accOne,
 				gas: 130000
 			}).catch((err) => {
@@ -63,9 +65,9 @@ contract('ADXRegistry', function(accounts) {
 	})
 
 	it("can register as an account", function() {
-		return adxRegistry.register("stremio", wallet, 0x47, "{}", {
+		return adxRegistry.register("stremio", wallet, 0x47, SIG, "{}", {
 			from: accOne,
-			gas: 130000
+			gas: 180000
 		}).then(function(res) {
 			var ev = res.logs[0]
 			if (! ev) throw 'no event'
@@ -86,7 +88,7 @@ contract('ADXRegistry', function(accounts) {
 	})
 
 	it("can update account info", function() {
-		return adxRegistry.register("stremio", wallet, 0x42, '{ "email": "office@strem.io" }', {
+		return adxRegistry.register("stremio", wallet, 0x42, SIG, '{ "email": "office@strem.io" }', {
 			from: accOne,
 			gas: 130000
 		}).then(function(res) {
@@ -98,6 +100,18 @@ contract('ADXRegistry', function(accounts) {
 			assert.equal(ev.args.ipfs, '0x4200000000000000000000000000000000000000000000000000000000000000')
 			assert.equal(ev.args.wallet, wallet)
 			assert.equal(ev.args.meta, '{ "email": "office@strem.io" }')
+		})
+	})
+
+	it("cant update account info if signature is changed", function() {
+		return new Promise((resolve, reject) => {
+			adxRegistry.register("stremio", wallet, 0x42, 0x45, '{ "email": "office@strem.io" }', {
+				from: accOne,
+				gas: 180000
+			}).catch(function(err) {
+				assert.equal(err.message, 'VM Exception while processing transaction: invalid opcode')
+				resolve()
+			})
 		})
 	})
 
@@ -208,7 +222,7 @@ contract('ADXRegistry', function(accounts) {
 				from: accOne,
 				to: adxRegistry.address,
 				value: 1*Math.pow(10,18),
-				gas: 130000
+				gas: 180000
 			}, (err) => {
 				assert.equal(err.message, 'VM Exception while processing transaction: invalid opcode')
 				resolve()

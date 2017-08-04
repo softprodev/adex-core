@@ -48,9 +48,9 @@ contract('ADXExchange', function(accounts) {
 
 	// WARNING: copied from registry tests; we need to make an ad unit in order to use it
 	it("register as an account", function() {
-		return adxRegistry.register("stremio", advWallet, 0x57, "{}", {
+		return adxRegistry.register("stremio", advWallet, 0x57, 0, "{}", {
 			from: accTwo,
-			gas: 130000
+			gas: 170000
 		}).then(function(res) {
 			var ev = res.logs[0]
 			if (! ev) throw 'no event'

@@ -222,7 +222,8 @@ contract ADXExchange is Ownable, Drainable {
 		}
 	}
 
-	// now, claim the reward; callable by the publisher; 
+	// now, claim the reward; callable by the publisher;
+	// claimBidReward is a separate function so as to define clearly who pays the gas for transfering the reward 
 	function claimBidReward(uint _bidId)
 		onlyRegisteredAcc
 		existingBid(_bidId)

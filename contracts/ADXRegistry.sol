@@ -30,6 +30,8 @@ contract ADXRegistry is Ownable, Drainable {
 		bytes32 ipfs; // ipfs addr for additional (larger) meta
 		bytes32 name; // name
 		string meta; // metadata, can be JSON, can be other format, depends on the high-level implementation
+
+		bytes32 signature; // signature in the off-blockchain state channel
 		
 		// Items, by type, then in an array of numeric IDs	
 		mapping (uint => uint[]) items;
@@ -55,10 +57,11 @@ contract ADXRegistry is Ownable, Drainable {
 
 	// can be called over and over to update the data
 	// XXX consider entrance barrier, such as locking in some ADX
-	function register(bytes32 _name, address _wallet, bytes32 _ipfs, string _meta)
+	function register(bytes32 _name, address _wallet, bytes32 _ipfs, bytes32 _sig, string _meta)
 		external
 	{
 		require(_wallet != 0);
+		// XXX should we ensure _sig is not 0? if so, also add test
 
 		var isNew = accounts[msg.sender].addr == 0;
 
@@ -68,6 +71,9 @@ contract ADXRegistry is Ownable, Drainable {
 		acc.ipfs = _ipfs;
 		acc.name = _name;
 		acc.meta = _meta;
+
+		if (!isNew) require(acc.signature == _sig);
+		acc.signature = _sig;
 
 		if (isNew) LogAccountRegistered(acc.addr, acc.wallet, acc.ipfs, acc.name, acc.meta);
 		else LogAccountModified(acc.addr, acc.wallet, acc.ipfs, acc.name, acc.meta);
