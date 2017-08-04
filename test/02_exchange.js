@@ -34,11 +34,11 @@ contract('ADXExchange', function(accounts) {
 		})
 	})
 
-	it("cant place a bid without an account", function() {
+	it("can NOT place a bid without an account", function() {
 		return new Promise((resolve, reject) => {
 			adxExchange.placeBid(1, 50 * 10000, 0, {
 				from: accTwo,
-				gas: 260000
+				gas: 860000 // costly :((
 			}).catch((err) => {
 				assert.equal(err.message, 'VM Exception while processing transaction: invalid opcode')
 				resolve()
@@ -64,11 +64,11 @@ contract('ADXExchange', function(accounts) {
 	})
 
 
-	it("cant place a bid without an ad unit", function() {
+	it("can NOT place a bid without an ad unit", function() {
 		return new Promise((resolve, reject) => {
 			adxExchange.placeBid(0, 50 * 10000, 0, {
 				from: accTwo,
-				gas: 260000
+				gas: 860000 // costly :((
 			}).catch((err) => {
 				assert.equal(err.message, 'VM Exception while processing transaction: invalid opcode')
 				resolve()
@@ -101,11 +101,11 @@ contract('ADXExchange', function(accounts) {
 		return adxToken.transfer(advWallet, 50 * 10000, { from: accOne })
 	})
 
-	it("cant place a bid because of allowance", function() {
+	it("can NOT place a bid because of allowance", function() {
 		return new Promise((resolve, reject) => {
 			adxExchange.placeBid(0, 50 * 10000, 0, {
 				from: accTwo,
-				gas: 260000
+				gas: 860000 // costly :((
 			}).catch((err) => {
 				assert.equal(err.message, 'VM Exception while processing transaction: invalid opcode')
 				resolve()
@@ -121,7 +121,11 @@ contract('ADXExchange', function(accounts) {
 		return adxExchange.placeBid(adunitId, 50 * 10000, 0, {
 			from: accTwo,
 			gas: 860000 // costly :((
-		}).then(function() {
+		}).then(function(res) {
+			var ev = res.logs[0]
+			if (! ev) throw 'no event'
+			assert.equal(ev.event, 'LogBidOpened')
+
 			return adxToken.balanceOf(adxExchange.address)
 		}).then(function(bal) {
 			assert.equal(bal.toNumber(), 50 * 10000)
