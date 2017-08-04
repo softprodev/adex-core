@@ -55,12 +55,12 @@ contract ADXExchange is Ownable, Drainable {
 		uint adSlot;
 		bytes32 adSlotIpfs;
 
-		uint acceptedDate; // when was it accepted by a publisher
+		uint acceptedTime; // when was it accepted by a publisher
 
 		// Requirements
 		//RequirementType type;
 		uint requiredPoints; // how many impressions/clicks/conversions have to be done
-		uint requiredExecTime;
+		uint requiredExecTime; // essentially a timeout
 
 		// Results
 		uint achievedPoints;
@@ -120,7 +120,7 @@ contract ADXExchange is Ownable, Drainable {
 	// Bid actions
 	// 
 
-	function placeBid(uint _adunitId, uint _rewardAmount)
+	function placeBid(uint _adunitId, uint _rewardAmount, uint _timeout)
 		onlyRegisteredAcc
 	{
 		bytes32 adIpfs;
@@ -146,6 +146,8 @@ contract ADXExchange is Ownable, Drainable {
 
 		bid.adUnit = _adunitId;
 		bid.adUnitIpfs = adIpfs;
+
+		bid.requiredExecTime = _timeout;
 
 		bidsById[bid.id] = bid;
 		bidsByAdvertiser[advertiser][bid.id] = bid;
@@ -196,7 +198,7 @@ contract ADXExchange is Ownable, Drainable {
 		bid.adSlot = _slotId;
 		bid.adSlotIpfs = adSlotIpfs;
 
-		bid.acceptedDate = now;
+		bid.acceptedTime = now;
 
 		bidsByPublisher[publisher][bid.id] = bid;
 
@@ -233,6 +235,8 @@ contract ADXExchange is Ownable, Drainable {
 		bid.claimed = true;
 
 		token.transfer(bid.publisherWallet, bid.amount);
+
+		LogBidRewardClaimed(bid.id, bid.publisherWallet, bid.amount);
 	}
 
 	// This can be done if a bid is accepted, but expired
@@ -240,8 +244,16 @@ contract ADXExchange is Ownable, Drainable {
 	function refundBid(uint _bidId)
 		onlyRegisteredAcc
 		onlyBidOwner(_bidId)
+		onlyBidState(_bidId, BidState.Open)
 	{
+		var bid = bidsById[_bidId];
+		require(bid.requiredExecTime > 0); // you can't refund if you haven't set a timeout
+		require(SafeMath.add(bid.acceptedTime, bid.requiredExecTime) < now);
 
+		bid.state = BidState.Expired;
+		token.transfer(bid.advertiserWallet, bid.amount);
+
+		LogBidExpired(bid.id);
 	}
 
 	//
@@ -263,5 +275,6 @@ contract ADXExchange is Ownable, Drainable {
 	event LogBidCanceled(uint _bidId);
 	event LogBidExpired(uint _bidId);
 	event LogBidCompleted(uint _bidId);
+	event LogBidRewardClaimed(uint _bidId, address _wallet, uint _amount);
 }
 

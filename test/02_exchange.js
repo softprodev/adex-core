@@ -36,7 +36,7 @@ contract('ADXExchange', function(accounts) {
 
 	it("cant place a bid without an account", function() {
 		return new Promise((resolve, reject) => {
-			adxExchange.placeBid(1, 50 * 10000, {
+			adxExchange.placeBid(1, 50 * 10000, 0, {
 				from: accTwo,
 				gas: 260000
 			}).catch((err) => {
@@ -66,7 +66,7 @@ contract('ADXExchange', function(accounts) {
 
 	it("cant place a bid without an ad unit", function() {
 		return new Promise((resolve, reject) => {
-			adxExchange.placeBid(0, 50 * 10000, {
+			adxExchange.placeBid(0, 50 * 10000, 0, {
 				from: accTwo,
 				gas: 260000
 			}).catch((err) => {
@@ -103,7 +103,7 @@ contract('ADXExchange', function(accounts) {
 
 	it("cant place a bid because of allowance", function() {
 		return new Promise((resolve, reject) => {
-			adxExchange.placeBid(0, 50 * 10000, {
+			adxExchange.placeBid(0, 50 * 10000, 0, {
 				from: accTwo,
 				gas: 260000
 			}).catch((err) => {
@@ -118,7 +118,7 @@ contract('ADXExchange', function(accounts) {
 	})
 
 	it("can place a bid", function() {
-		return adxExchange.placeBid(adunitId, 50 * 10000, {
+		return adxExchange.placeBid(adunitId, 50 * 10000, 0, {
 			from: accTwo,
 			gas: 860000 // costly :((
 		}).then(function() {
