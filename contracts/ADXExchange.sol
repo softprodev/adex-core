@@ -67,9 +67,6 @@ contract ADXExchange is Ownable, Drainable {
 		bool confirmedByPublisher;
 		bool confirmedByAdvertiser;
 
-		// Additional payload
-		bytes32[] payload;
-
 		// State channel peers
 		bytes32[] peers;
 	}
