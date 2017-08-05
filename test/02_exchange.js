@@ -7,7 +7,10 @@ var time = require('../helpers/time')
 contract('ADXExchange', function(accounts) {
 	var accOne = web3.eth.accounts[0]
 	var accTwo = web3.eth.accounts[1]
+	var accThree = web3.eth.accounts[2]
 	var advWallet = web3.eth.accounts[8]
+
+	var SIG = 0x420000000000000002300023400022000000000000000000000000000000000
 
 	var ADUNIT = 0 
 	var PROPERTY = 1
@@ -48,7 +51,7 @@ contract('ADXExchange', function(accounts) {
 
 	// WARNING: copied from registry tests; we need to make an ad unit in order to use it
 	it("register as an account", function() {
-		return adxRegistry.register("stremio", advWallet, 0x57, 0, "{}", {
+		return adxRegistry.register("stremio", advWallet, 0x57, SIG, "{}", {
 			from: accTwo,
 			gas: 170000
 		}).then(function(res) {
@@ -92,8 +95,6 @@ contract('ADXExchange', function(accounts) {
 			assert.equal(ev.args.owner, accTwo)
 
 			adunitId = ev.args.id.toNumber()
-
-			// TODO check all ad units for an account after
 		})
 	})
 
@@ -103,7 +104,7 @@ contract('ADXExchange', function(accounts) {
 
 	it("can NOT place a bid because of allowance", function() {
 		return new Promise((resolve, reject) => {
-			adxExchange.placeBid(0, 50 * 10000, 0, {
+			adxExchange.placeBid(adunitId, 50 * 10000, 0, {
 				from: accTwo,
 				gas: 860000 // costly :((
 			}).catch((err) => {
@@ -115,6 +116,20 @@ contract('ADXExchange', function(accounts) {
 
 	it("give allowance to transfer so we can place a bid", function() {
 		return adxToken.approve(adxExchange.address, 50 * 10000, { from: advWallet })
+	})
+
+
+	it("can NOT place a bid because we don't own the ad unit", function() {
+		// if this was allowed, it would still send the adx to accTwo (the rightful owner), because 'advertiser' is taken from the ad unit object
+		return new Promise((resolve, reject) => {
+			adxExchange.placeBid(adunitId, 50 * 10000, 0, {
+				from: accOne,
+				gas: 860000 // costly :((
+			}).catch((err) => {
+				assert.equal(err.message, 'VM Exception while processing transaction: invalid opcode')
+				resolve()
+			})
+		})
 	})
 
 	it("can place a bid", function() {
