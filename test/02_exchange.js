@@ -146,4 +146,9 @@ contract('ADXExchange', function(accounts) {
 			assert.equal(bal.toNumber(), 50 * 10000)
 		})
 	})
+
+	// Bid can be canceled
+	// Bid can be accepted
+	// Bid can be completed
+	// Bid can be refunded, but only if required
 })
