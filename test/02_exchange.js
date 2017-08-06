@@ -152,11 +152,24 @@ contract('ADXExchange', function(accounts) {
 		})
 	})
 
-	// TODO can't be canceled by non-owner
+	it("can NOT cancel a bid that's not ours", function() {
+		return new Promise((resolve, reject) => {
+			adxExchange.cancelBid(1, { from: accOne, gas: 300000 })
+			.catch((err) => {
+				assert.equal(err.message, 'VM Exception while processing transaction: invalid opcode')
+				resolve()
+			})
+		})
+	})
 
 	it("can cancel a bid and will be refunded", function() {
 		return adxExchange.cancelBid(1, { from: accTwo, gas: 300000 })
-		.then(function() {
+		.then(function(res) {
+			var ev = res.logs[0]
+			if (! ev) throw 'no event'
+			assert.equal(ev.event, 'LogBidCanceled')
+			assert.equal(ev.args.bidId, 1)
+
 			return adxToken.balanceOf(advWallet)
 		})
 		.then(function(bal) {
