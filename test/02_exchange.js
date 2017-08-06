@@ -9,11 +9,12 @@ contract('ADXExchange', function(accounts) {
 	var accTwo = web3.eth.accounts[1] // advertiser
 	var accThree = web3.eth.accounts[2] // publisher
 	var advWallet = web3.eth.accounts[8]
+	var pubWallet = web3.eth.accounts[7]
 
 	var SIG = 0x420000000000000002300023400022000000000000000000000000000000000
 
 	var ADUNIT = 0 
-	var PROPERTY = 1
+	var ADSLOT = 1
 
 	var adxToken;
 	it("create adx mock token", function() {
@@ -37,6 +38,9 @@ contract('ADXExchange', function(accounts) {
 		})
 	})
 
+	var adunitId
+	var adslotId
+
 	it("can NOT place a bid without an account", function() {
 		return new Promise((resolve, reject) => {
 			adxExchange.placeBid(1, 50 * 10000, 0, {
@@ -51,7 +55,7 @@ contract('ADXExchange', function(accounts) {
 
 	// WARNING: copied from registry tests; we need to make an ad unit in order to use it
 	it("register as an account", function() {
-		return adxRegistry.register("stremio", advWallet, 0x57, SIG, "{}", {
+		return adxRegistry.register("vyperCola", advWallet, 0x57, SIG, "{}", {
 			from: accTwo,
 			gas: 170000
 		}).then(function(res) {
@@ -59,7 +63,7 @@ contract('ADXExchange', function(accounts) {
 			if (! ev) throw 'no event'
 			assert.equal(ev.event, 'LogAccountRegistered')
 			assert.equal(ev.args.addr, accTwo)
-			assert.equal(web3.toUtf8(ev.args.name), 'stremio')
+			assert.equal(web3.toUtf8(ev.args.name), 'vyperCola')
 			assert.equal(ev.args.ipfs, '0x5700000000000000000000000000000000000000000000000000000000000000');
 			assert.equal(ev.args.wallet, advWallet)
 			assert.equal(ev.args.meta, '{}')
@@ -95,6 +99,31 @@ contract('ADXExchange', function(accounts) {
 			assert.equal(ev.args.owner, accTwo)
 
 			adunitId = ev.args.id.toNumber()
+		})
+	})
+
+	it("can register a new publisher account and ad slot", function() {
+		// WARNING: copied from registry tests; we need to make an ad slot in order to use the exchange
+		return adxRegistry.register("stremio", pubWallet, 0x57, 0x421, "{}", {
+			from: accThree,
+			gas: 170000
+		}).then(function() {
+			return adxRegistry.registerItem(ADSLOT, 0, 0x4821, "foobar ad slot", "{}", {
+				from: accThree,
+				gas: 230000
+			})
+		}).then(function(res) {
+			var ev = res.logs[0]
+			if (! ev) throw 'no event'
+			assert.equal(ev.event, 'LogItemRegistered')
+			assert.equal(ev.args.itemType, ADSLOT);
+			assert.equal(ev.args.id, 1)
+			assert.equal(web3.toUtf8(ev.args.name), 'foobar ad slot')
+			assert.equal(ev.args.meta, '{}')
+			assert.equal(ev.args.ipfs, '0x4821000000000000000000000000000000000000000000000000000000000000');
+			assert.equal(ev.args.owner, accThree)
+
+			adslotId = ev.args.id.toNumber()
 		})
 	})
 
@@ -202,8 +231,9 @@ contract('ADXExchange', function(accounts) {
 			assert.equal(ev.args.bidId, 2)
 			assert.equal(ev.args.advertiser, accTwo)
 			assert.equal(ev.args.adunitId, adunitId)
+			assert.equal(ev.args.adunitIpfs, '0x4820000000000000000000000000000000000000000000000000000000000000')
 			assert.equal(ev.args.rewardAmount, 50 * 10000)
-			assert.equal(ev.args.timeout, 0);
+			assert.equal(ev.args.timeout, 0)
 
 			return adxToken.balanceOf(adxExchange.address)
 		}).then(function(bal) {
@@ -211,11 +241,33 @@ contract('ADXExchange', function(accounts) {
 		})
 	})
 
-	// it("can accept a bid", function() {
-	// 	return adxExchange
-	// })
-	// bid can't be canceled once accepted
+	it("can accept a bid", function() {
+	 	return adxExchange.acceptBid(2, adslotId, {
+	 		from: accThree,
+	 		gas: 860000
+	 	}).then(function(res) {
+			var ev = res.logs[0]
+			if (! ev) throw 'no event'
+			assert.equal(ev.event, 'LogBidAccepted')
+			assert.equal(ev.args.bidId, 2)
+			assert.equal(ev.args.publisher, accThree)
+			assert.equal(ev.args.adslotId, adslotId)
+			assert.equal(ev.args.adslotIpfs, '0x4821000000000000000000000000000000000000000000000000000000000000')
 
+			return adxToken.balanceOf(adxExchange.address)
+		})
+	})
+
+	it("can NOT cancel a bid once it's accepted", function() {
+		return new Promise((resolve, reject) => {
+			adxExchange.cancelBid(2, { from: accTwo, gas: 300000 })
+			.catch((err) => {
+				assert.equal(err.message, 'VM Exception while processing transaction: invalid opcode')
+				resolve()
+			})
+		})
+	})
+	
 	// Bid can be completed
 
 	// Bid can be refunded, but only if required (it is expired)

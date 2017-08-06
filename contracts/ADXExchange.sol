@@ -153,7 +153,7 @@ contract ADXExchange is Ownable, Drainable {
 
 		token.transferFrom(advertiserWallet, address(this), _rewardAmount);
 
-		LogBidOpened(bid.id, advertiser, _adunitId, _rewardAmount, _timeout);
+		LogBidOpened(bid.id, advertiser, _adunitId, adIpfs, _rewardAmount, _timeout);
 	}
 
 	function cancelBid(uint _bidId)
@@ -201,7 +201,7 @@ contract ADXExchange is Ownable, Drainable {
 
 		bidsByPublisher[publisher][bid.id] = bid;
 
-		LogBidAccepted(bid.id, publisher, _slotId);
+		LogBidAccepted(bid.id, publisher, _slotId, adSlotIpfs);
 	}
 
 	// both publisher and advertiser have to call this for a bid to be considered verified; it has to be within margin of error
@@ -270,8 +270,8 @@ contract ADXExchange is Ownable, Drainable {
 	//
 	// Events
 	//
-	event LogBidOpened(uint bidId, address advertiser, uint adunitId, uint rewardAmount, uint timeout);
-	event LogBidAccepted(uint bidId, address publisher, uint adslotId);
+	event LogBidOpened(uint bidId, address advertiser, uint adunitId, bytes32 adunitIpfs, uint rewardAmount, uint timeout);
+	event LogBidAccepted(uint bidId, address publisher, uint adslotId, bytes32 adslotIpfs);
 	event LogBidCanceled(uint bidId);
 	event LogBidExpired(uint bidId);
 	event LogBidCompleted(uint bidId);
