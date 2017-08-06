@@ -6,8 +6,8 @@ var time = require('../helpers/time')
 
 contract('ADXExchange', function(accounts) {
 	var accOne = web3.eth.accounts[0]
-	var accTwo = web3.eth.accounts[1]
-	var accThree = web3.eth.accounts[2]
+	var accTwo = web3.eth.accounts[1] // advertiser
+	var accThree = web3.eth.accounts[2] // publisher
 	var advWallet = web3.eth.accounts[8]
 
 	var SIG = 0x420000000000000002300023400022000000000000000000000000000000000
@@ -162,6 +162,16 @@ contract('ADXExchange', function(accounts) {
 		})
 	})
 
+	it("can NOT cancel a bid that does not exist", function() {
+		return new Promise((resolve, reject) => {
+			adxExchange.cancelBid(111, { from: accTwo, gas: 300000 })
+			.catch((err) => {
+				assert.equal(err.message, 'VM Exception while processing transaction: invalid opcode')
+				resolve()
+			})
+		})
+	})
+
 	it("can cancel a bid and will be refunded", function() {
 		return adxExchange.cancelBid(1, { from: accTwo, gas: 300000 })
 		.then(function(res) {
@@ -177,7 +187,33 @@ contract('ADXExchange', function(accounts) {
 		})
 	})
 
-	// Bid can be accepted
+	it("give allowance to transfer so we can place a bid", function() {
+		return adxToken.approve(adxExchange.address, 50 * 10000, { from: advWallet })
+	})
+
+	it("can place a second bid", function() {
+		return adxExchange.placeBid(adunitId, 50 * 10000, 0, {
+			from: accTwo,
+			gas: 860000 // costly :((
+		}).then(function(res) {
+			var ev = res.logs[0]
+			if (! ev) throw 'no event'
+			assert.equal(ev.event, 'LogBidOpened')
+			assert.equal(ev.args.bidId, 2)
+			assert.equal(ev.args.advertiser, accTwo)
+			assert.equal(ev.args.adunitId, adunitId)
+			assert.equal(ev.args.rewardAmount, 50 * 10000)
+			assert.equal(ev.args.timeout, 0);
+
+			return adxToken.balanceOf(adxExchange.address)
+		}).then(function(bal) {
+			assert.equal(bal.toNumber(), 50 * 10000)
+		})
+	})
+
+	// it("can accept a bid", function() {
+	// 	return adxExchange
+	// })
 	// bid can't be canceled once accepted
 
 	// Bid can be completed
