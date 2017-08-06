@@ -19,6 +19,8 @@ contract ADXExchange is Ownable, Drainable {
 
 	// TODO: active bids?
 	// TODO: the bid having a adunitType so that this can be filtered out
+	// TODO: consider the possibility of advertiser/publisher canceling a bid after it's been accepted on mutual concent; e.g. they don't agree on the blacklisting conditions 
+	// TODO: consider disagreement case; will the bid be "Accepted" until it expires? seems like an OK option actually...
 
 	// corresponds to enum types in ADXRegistry
 	uint constant ADUNIT = 0;
@@ -151,7 +153,7 @@ contract ADXExchange is Ownable, Drainable {
 
 		token.transferFrom(advertiserWallet, address(this), _rewardAmount);
 
-		LogBidOpened(bid.id);
+		LogBidOpened(bid.id, advertiser, _adunitId, _rewardAmount, _timeout);
 	}
 
 	function cancelBid(uint _bidId)
@@ -199,7 +201,7 @@ contract ADXExchange is Ownable, Drainable {
 
 		bidsByPublisher[publisher][bid.id] = bid;
 
-		LogBidAccepted(bid.id);
+		LogBidAccepted(bid.id, publisher, _slotId);
 	}
 
 	// both publisher and advertiser have to call this for a bid to be considered verified; it has to be within margin of error
@@ -268,11 +270,11 @@ contract ADXExchange is Ownable, Drainable {
 	//
 	// Events
 	//
-	event LogBidOpened(uint _bidId);
-	event LogBidAccepted(uint _bidId);
-	event LogBidCanceled(uint _bidId);
-	event LogBidExpired(uint _bidId);
-	event LogBidCompleted(uint _bidId);
+	event LogBidOpened(uint bidId, address advertiser, uint adunitId, uint rewardAmount, uint timeout);
+	event LogBidAccepted(uint bidId, address publisher, uint adslotId);
+	event LogBidCanceled(uint bidId);
+	event LogBidExpired(uint bidId);
+	event LogBidCompleted(uint bidId);
 	event LogBidRewardClaimed(uint _bidId, address _wallet, uint _amount);
 }
 

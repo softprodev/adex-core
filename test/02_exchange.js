@@ -140,6 +140,11 @@ contract('ADXExchange', function(accounts) {
 			var ev = res.logs[0]
 			if (! ev) throw 'no event'
 			assert.equal(ev.event, 'LogBidOpened')
+			assert.equal(ev.args.bidId, 1)
+			assert.equal(ev.args.advertiser, accTwo)
+			assert.equal(ev.args.adunitId, adunitId)
+			assert.equal(ev.args.rewardAmount, 50 * 10000)
+			assert.equal(ev.args.timeout, 0);
 
 			return adxToken.balanceOf(adxExchange.address)
 		}).then(function(bal) {
@@ -147,8 +152,22 @@ contract('ADXExchange', function(accounts) {
 		})
 	})
 
-	// Bid can be canceled
+	// TODO can't be canceled by non-owner
+
+	it("can cancel a bid and will be refunded", function() {
+		return adxExchange.cancelBid(1, { from: accTwo, gas: 300000 })
+		.then(function() {
+			return adxToken.balanceOf(advWallet)
+		})
+		.then(function(bal) {
+			assert.equal(bal, 50 * 10000)
+		})
+	})
+
 	// Bid can be accepted
+	// bid can't be canceled once accepted
+
 	// Bid can be completed
-	// Bid can be refunded, but only if required
+
+	// Bid can be refunded, but only if required (it is expired)
 })
