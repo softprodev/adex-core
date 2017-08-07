@@ -101,12 +101,12 @@ contract ADXExchange is Ownable, Drainable {
 		_;
 	}
 
-	modifier existingBid(uint _bidId) {
+	modifier onlyExistingBid(uint _bidId) {
 		require(bidsById[_bidId].id != 0);
 		_;
 	}
 
-	modifier unexistingBid(uint _bidId) {
+	modifier unonlyExistingBid(uint _bidId) {
 		require(bidsById[_bidId].id == 0);
 		_;
 	}
@@ -162,8 +162,8 @@ contract ADXExchange is Ownable, Drainable {
 
 	function cancelBid(uint _bidId)
 		onlyRegisteredAcc
+		onlyExistingBid(_bidId)
 		onlyBidOwner(_bidId)
-		existingBid(_bidId)
 		onlyBidState(_bidId, BidState.Open)
 	{
 		var bid = bidsById[_bidId];
@@ -175,7 +175,7 @@ contract ADXExchange is Ownable, Drainable {
 
 	function acceptBid(uint _bidId, uint _slotId) 
 		onlyRegisteredAcc 
-		existingBid(_bidId) 
+		onlyExistingBid(_bidId) 
 		onlyBidState(_bidId, BidState.Open)
 	{
 		address publisher;
@@ -211,7 +211,7 @@ contract ADXExchange is Ownable, Drainable {
 	// both publisher and advertiser have to call this for a bid to be considered verified; it has to be within margin of error
 	function verifyBid(uint _bidId)
 		onlyRegisteredAcc
-		existingBid(_bidId)
+		onlyExistingBid(_bidId)
 		onlyBidState(_bidId, BidState.Accepted)
 	{
 		var bid = bidsById[_bidId];
@@ -230,7 +230,7 @@ contract ADXExchange is Ownable, Drainable {
 	// claimBidReward is a separate function so as to define clearly who pays the gas for transfering the reward 
 	function claimBidReward(uint _bidId)
 		onlyRegisteredAcc
-		existingBid(_bidId)
+		onlyExistingBid(_bidId)
 		onlyBidAceptee(_bidId)
 		onlyBidState(_bidId, BidState.Completed)
 	{
@@ -248,6 +248,7 @@ contract ADXExchange is Ownable, Drainable {
 	// This is essentially the protection from never settling on verification, or from publisher not executing the bid within a reasonable time
 	function refundBid(uint _bidId)
 		onlyRegisteredAcc
+		onlyExistingBid(_bidId)
 		onlyBidOwner(_bidId)
 		onlyBidState(_bidId, BidState.Accepted)
 	{
@@ -265,7 +266,14 @@ contract ADXExchange is Ownable, Drainable {
 	// Public constant functions
 	//
 
-	function getBids()
+	function getBidsByAdunit()
+		constant
+		external
+	{
+
+	}
+
+	function getBidsByAdslot()
 		constant
 		external
 	{

@@ -257,7 +257,7 @@ contract('ADXExchange', function(accounts) {
 		})
 	})
 
-	it("advertiser can NOT confirm the bid before it's accepted", function() {
+	it("advertiser can NOT verify the bid before it's accepted", function() {
 		return new Promise((resolve, reject) => {
 			adxExchange.verifyBid(2, { from: accTwo, gas: 400000 })
 			.catch((err) => {
@@ -332,7 +332,7 @@ contract('ADXExchange', function(accounts) {
 
 	// Bid can be completed
 
-	it("non-publisher/advertiser can NOT confirm the bid", function() {
+	it("non-publisher/advertiser can NOT verify the bid", function() {
 		return new Promise((resolve, reject) => {
 			adxExchange.verifyBid(2, { from: accOne, gas: 400000 })
 			.catch((err) => {
