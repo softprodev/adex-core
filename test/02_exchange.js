@@ -127,8 +127,12 @@ contract('ADXExchange', function(accounts) {
 		})
 	})
 
+	// we give more so we can
+	// 1) test whether publisher can double-claim reward
+	// 2) open another bid for 40k
+
 	it("give some tokens to accTwo so they can place a bid", function() {
-		return adxToken.transfer(advWallet, 50 * 10000, { from: accOne })
+		return adxToken.transfer(advWallet, 110 * 10000, { from: accOne })
 	})
 
 	it("can NOT place a bid because of allowance", function() {
@@ -177,7 +181,13 @@ contract('ADXExchange', function(accounts) {
 
 			return adxToken.balanceOf(adxExchange.address)
 		}).then(function(bal) {
+			// exchange has 50k
 			assert.equal(bal.toNumber(), 50 * 10000)
+
+			return adxToken.balanceOf(advWallet)
+		}).then(function(advBal) {
+			// advertiser still has 60k
+			assert.equal(advBal.toNumber(), 60 * 10000)
 		})
 	})
 
@@ -212,7 +222,7 @@ contract('ADXExchange', function(accounts) {
 			return adxToken.balanceOf(advWallet)
 		})
 		.then(function(bal) {
-			assert.equal(bal, 50 * 10000)
+			assert.equal(bal, 110 * 10000)
 		})
 	})
 
@@ -339,31 +349,41 @@ contract('ADXExchange', function(accounts) {
 		})
 	})
 
-	// TODO: publisher can NOT claim a bid reward twice, even if the funds are there
+
+	it("publisher can NOT claim bid reward TWICE", function() {
+		return new Promise((resolve, reject) => {
+			adxExchange.claimBidReward(2, { from: accThree, gas: 400000 })
+			.catch((err) => {
+				assert.equal(err.message, 'VM Exception while processing transaction: invalid opcode')
+				resolve()
+			})
+		})
+	})
 
 	// Bid can be refunded, but only if required (it is expired)
-
-	/*
-	it("can place a thirdd bid", function() {
-		return adxExchange.placeBid(adunitId, 50 * 10000, 0, {
+	it("give allowance to transfer so we can place a bid", function() {
+		return adxToken.approve(adxExchange.address, 40 * 10000, { from: advWallet })
+	})
+	
+	it("can place a third bid with 300s timeout", function() {
+		return adxExchange.placeBid(adunitId, 40 * 10000, 300, {
 			from: accTwo,
 			gas: 860000 // costly :((
 		}).then(function(res) {
 			var ev = res.logs[0]
 			if (! ev) throw 'no event'
 			assert.equal(ev.event, 'LogBidOpened')
-			assert.equal(ev.args.bidId, 2)
+			assert.equal(ev.args.bidId, 3)
 			assert.equal(ev.args.advertiser, accTwo)
 			assert.equal(ev.args.adunitId, adunitId)
 			assert.equal(ev.args.adunitIpfs, '0x4820000000000000000000000000000000000000000000000000000000000000')
-			assert.equal(ev.args.rewardAmount, 50 * 10000)
-			assert.equal(ev.args.timeout, 0)
+			assert.equal(ev.args.rewardAmount, 40 * 10000)
+			assert.equal(ev.args.timeout.toNumber(), 300)
 
 			return adxToken.balanceOf(adxExchange.address)
 		}).then(function(bal) {
-			assert.equal(bal.toNumber(), 50 * 10000)
+			assert.equal(bal.toNumber(), 40 * 10000)
 		})
 	})
-	*/
-
+	
 })
