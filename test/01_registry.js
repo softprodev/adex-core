@@ -29,6 +29,7 @@ contract('ADXRegistry', function(accounts) {
 				assert.equal(err.message, 'VM Exception while processing transaction: invalid opcode')
 				resolve()
 			})
+			.then(function() { reject('cant be here - unexpected success') })
 		})
 	});
 
@@ -41,6 +42,7 @@ contract('ADXRegistry', function(accounts) {
 				assert.equal(err.message, 'VM Exception while processing transaction: invalid opcode')
 				resolve()
 			})
+			.then(function() { reject('cant be here - unexpected success') })
 		})
 	})
 
@@ -54,6 +56,7 @@ contract('ADXRegistry', function(accounts) {
 				assert.equal(err.message, 'VM Exception while processing transaction: invalid opcode')
 				resolve()
 			})
+			.then(function() { reject('cant be here - unexpected success') })
 		})
 	})
 
@@ -112,6 +115,7 @@ contract('ADXRegistry', function(accounts) {
 				assert.equal(err.message, 'VM Exception while processing transaction: invalid opcode')
 				resolve()
 			})
+			.then(function() { reject('cant be here - unexpected success') })
 		})
 	})
 
@@ -160,7 +164,8 @@ contract('ADXRegistry', function(accounts) {
 			}).catch((err) => {
 				assert.equal(err.message, 'VM Exception while processing transaction: invalid opcode')
 				resolve()
-			})			
+			})
+			.then(function() { reject('cant be here - unexpected success') })	
 		})
 	})
 
