@@ -423,6 +423,10 @@ contract('ADXExchange', function(accounts) {
 		})
 	})
 
+	it("give enough tokens to the exchange to test double-reward", function() {
+		return adxToken.transfer(adxExchange.address, 50 * 10000, { from: accOne })
+	})
+	
 
 	it("publisher can NOT claim bid reward TWICE", function() {
 		return new Promise((resolve, reject) => {
@@ -457,7 +461,7 @@ contract('ADXExchange', function(accounts) {
 
 			return adxToken.balanceOf(adxExchange.address)
 		}).then(function(bal) {
-			assert.equal(bal.toNumber(), 40 * 10000)
+			assert.equal(bal.toNumber(), (50 /* from double-reward test */ + 40) * 10000)
 
 			return adxExchange.acceptBid(3, adslotId, {
 		 		from: accThree,
