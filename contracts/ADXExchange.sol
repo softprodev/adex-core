@@ -17,6 +17,7 @@ contract ADXExchange is Ownable, Drainable {
 	mapping (uint => uint[]) bidsByAdunit; // bids set out by ad unit
 	mapping (uint => uint[]) bidsByAdslot; // accepted by publisher, by ad slot
 
+	// TODO: some properties in the bid structure - requiredPoints/achievedPoints/peers for example - are not used atm
 	// TODO: CONSIDER: the bid having a adunitType so that this can be filtered out
 	// TODO: CONSIDER: the possibility of advertiser/publisher canceling a bid after it's been accepted on mutual concent; e.g. they don't agree on the blacklisting conditions 
 	// TODO: consider locking ad units / ad slots or certain properties from them so that bids cannot be ruined by editing them
