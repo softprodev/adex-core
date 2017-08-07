@@ -339,11 +339,17 @@ contract ADXExchange is Ownable, Drainable {
 		onlyExistingBid(_bidId)
 		constant
 		external
-		returns (uint, uint, uint, uint, address, uint, address)
+		returns (
+			uint state, uint target, uint rewardAmount, 
+			uint adunitId, address advertiser, uint adslotId, address publisher
+		)
 	{
 		// TODO: others
 		var bid = bidsById[_bidId];
-		return (uint(bid.state), bid.requiredPoints, bid.amount, bid.adUnit, bid.advertiser, bid.adSlot, bid.publisher);
+		return (
+			uint(bid.state), bid.requiredPoints, bid.amount, 
+			bid.adUnit, bid.advertiser, bid.adSlot, bid.publisher
+		);
 	}
 
 	//
