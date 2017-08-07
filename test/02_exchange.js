@@ -50,6 +50,7 @@ contract('ADXExchange', function(accounts) {
 				assert.equal(err.message, 'VM Exception while processing transaction: invalid opcode')
 				resolve()
 			})
+			.then(function() { reject('cant be here - unexpected success') })
 		})
 	})
 
@@ -80,6 +81,7 @@ contract('ADXExchange', function(accounts) {
 				assert.equal(err.message, 'VM Exception while processing transaction: invalid opcode')
 				resolve()
 			})
+			.then(function() { reject('cant be here - unexpected success') })
 		})
 	})
 
@@ -144,6 +146,7 @@ contract('ADXExchange', function(accounts) {
 				assert.equal(err.message, 'VM Exception while processing transaction: invalid opcode')
 				resolve()
 			})
+			.then(function() { reject('cant be here - unexpected success') })
 		})
 	})
 
@@ -162,6 +165,7 @@ contract('ADXExchange', function(accounts) {
 				assert.equal(err.message, 'VM Exception while processing transaction: invalid opcode')
 				resolve()
 			})
+			.then(function() { reject('cant be here - unexpected success') })
 		})
 	})
 
@@ -198,6 +202,7 @@ contract('ADXExchange', function(accounts) {
 				assert.equal(err.message, 'VM Exception while processing transaction: invalid opcode')
 				resolve()
 			})
+			.then(function() { reject('cant be here - unexpected success') })
 		})
 	})
 
@@ -208,6 +213,7 @@ contract('ADXExchange', function(accounts) {
 				assert.equal(err.message, 'VM Exception while processing transaction: invalid opcode')
 				resolve()
 			})
+			.then(function() { reject('cant be here - unexpected success') })
 		})
 	})
 
@@ -258,6 +264,7 @@ contract('ADXExchange', function(accounts) {
 				assert.equal(err.message, 'VM Exception while processing transaction: invalid opcode')
 				resolve()
 			})
+			.then(function() { reject('cant be here - unexpected success') })
 		})
 	})
 
@@ -285,6 +292,7 @@ contract('ADXExchange', function(accounts) {
 				assert.equal(err.message, 'VM Exception while processing transaction: invalid opcode')
 				resolve()
 			})
+			.then(function() { reject('cant be here - unexpected success') })
 		})
 	})
 	
@@ -295,6 +303,7 @@ contract('ADXExchange', function(accounts) {
 				assert.equal(err.message, 'VM Exception while processing transaction: invalid opcode')
 				resolve()
 			})
+			.then(function() { reject('cant be here - unexpected success') })
 		})
 	})
 
@@ -306,6 +315,7 @@ contract('ADXExchange', function(accounts) {
 				assert.equal(err.message, 'VM Exception while processing transaction: invalid opcode')
 				resolve()
 			})
+			.then(function() { reject('cant be here - unexpected success') })
 		})
 	})
 
@@ -318,6 +328,7 @@ contract('ADXExchange', function(accounts) {
 				assert.equal(err.message, 'VM Exception while processing transaction: invalid opcode')
 				resolve()
 			})
+			.then(function() { reject('cant be here - unexpected success') })
 		})
 	})
 
@@ -332,6 +343,7 @@ contract('ADXExchange', function(accounts) {
 				assert.equal(err.message, 'VM Exception while processing transaction: invalid opcode')
 				resolve()
 			})
+			.then(function() { reject('cant be here - unexpected success') })
 		})
 	})
 
@@ -353,6 +365,7 @@ contract('ADXExchange', function(accounts) {
 				assert.equal(err.message, 'VM Exception while processing transaction: invalid opcode')
 				resolve()
 			})
+			.then(function() { reject('cant be here - unexpected success') })
 		})
 	})
 
@@ -378,6 +391,7 @@ contract('ADXExchange', function(accounts) {
 				assert.equal(err.message, 'VM Exception while processing transaction: invalid opcode')
 				resolve()
 			})
+			.then(function() { reject('cant be here - unexpected success') })
 		})
 	})
 
@@ -427,11 +441,12 @@ contract('ADXExchange', function(accounts) {
 				assert.equal(err.message, 'VM Exception while processing transaction: invalid opcode')
 				resolve()
 			})
+			.then(function() { reject('cant be here - unexpected success') })
 		})
 	})
 
 	it("move time 300s", function() {
-		return time.moveTime(web3, 310)
+		return time.move(web3, 310)
 	})
 
 	it("bid should be timed out, can now refund the bid", function() {
