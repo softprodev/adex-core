@@ -266,6 +266,15 @@ contract ADXExchange is Ownable, Drainable {
 	// Public constant functions
 	//
 
+	function getBidsFromArr(uint _status) 
+		internal
+	{
+		Bids[] all;
+		for (uint i = 0; i != arr.length; i ++ ) {
+			
+		}
+	}
+
 	function getBidsByAdunit()
 		constant
 		external
