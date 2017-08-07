@@ -513,4 +513,43 @@ contract('ADXExchange', function(accounts) {
 		})
 	})
 
+	// GIVEUP scenario
+	// TODO: test if non-accepted bid can't be gven up
+	/*
+	it("can place a third bid and accept it, then give it up", function() {
+		var firstBal;
+		return adxToken.balanceOf(advWallet)
+		.then(function(bal) {
+			firstBal = bal.toNumber()
+
+			return adxExchange.placeBid(adunitId, 5 * 10000, 0, {
+				from: accTwo,
+				gas: 860000 // costly :((
+			})
+
+		})
+		.then(function(res) {
+			var ev = res.logs[0]
+			if (! ev) throw 'no event'
+			assert.equal(ev.event, 'LogBidOpened')
+			assert.equal(ev.args.bidId, 4)
+		})
+		.then(function(bal) {
+			return adxExchange.acceptBid(4, adslotId, {
+		 		from: accThree,
+		 		gas: 860000
+		 	})
+		})
+		.then(function(res) {
+			var ev = res.logs[0]
+			if (! ev) throw 'no event'
+			assert.equal(ev.event, 'LogBidAccepted')
+
+			return adxToken.balanceOf(advWallet)
+		})
+		.then(function(bal) {
+			assert.equal(bal.toNumber() + 5 * 10000, firstBal)
+		})
+	})
+	*/
 })

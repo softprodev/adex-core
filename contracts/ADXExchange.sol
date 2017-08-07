@@ -23,9 +23,6 @@ contract ADXExchange is Ownable, Drainable {
 	// CONSIDER: the bid having a adunitType so that this can be filtered out
 	// WHY IT'S NOT IMPORTANT: you can get bids by ad units / ad slots, which is filter enough already considering we know their types
 
-	// CONSIDER: the possibility of advertiser/publisher canceling a bid after it's been accepted on mutual concent; e.g. they don't agree on the blacklisting conditions 
-	// WHY IT'S NOT IMPORTANT: you can just wait it out... 
-
 	// CONSIDER: locking ad units / ad slots or certain properties from them so that bids cannot be ruined by editing them
 	// WHY IT'S NOT IMPORTANT: from a game theoretical point of view there's no incentive to do that
 
@@ -214,6 +211,20 @@ contract ADXExchange is Ownable, Drainable {
 		bidsByAdslot[_slotId].push(_bidId);
 
 		LogBidAccepted(bid.id, publisher, _slotId, adSlotIpfs);
+	}
+	
+	// the bid is given up by the publisher, therefore canceling it and returning the funds to the advertiser
+	function giveupBid(uint _bidId)
+		onlyRegisteredAcc
+		onlyExistingBid(_bidId)
+		onlyBidAceptee(_bidId)
+		onlyBidState(_bidId, BidState.Accepted)
+	{
+		var bid = bidsById[_bidId];
+		bid.state = BidState.Canceled;
+		token.transfer(bid.advertiserWallet, bid.amount);
+
+		LogBidCanceled(bid.id);
 	}
 
 	// both publisher and advertiser have to call this for a bid to be considered verified
