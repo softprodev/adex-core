@@ -14,8 +14,8 @@ contract ADXExchange is Ownable, Drainable {
 	uint bidsCount;
 
 	mapping (uint => Bid) bidsById;
-	mapping (address => mapping (uint => Bid)) bidsByAdvertiser; // bids set out by advertisers
-	mapping (address => mapping (uint => Bid)) bidsByPublisher; // accepted by publisher
+	mapping (uint => uint[]) bidsByAdunit; // bids set out by ad unit
+	mapping (uint => uint[]) bidsByAdslot; // accepted by publisher, by ad slot
 
 	// TODO: the bid having a adunitType so that this can be filtered out
 	// TODO: consider the possibility of advertiser/publisher canceling a bid after it's been accepted on mutual concent; e.g. they don't agree on the blacklisting conditions 
@@ -151,7 +151,7 @@ contract ADXExchange is Ownable, Drainable {
 		bid.requiredExecTime = _timeout;
 
 		bidsById[bid.id] = bid;
-		bidsByAdvertiser[advertiser][bid.id] = bid;
+		bidsByAdunit[_adunitId].push(bid.id);
 
 		token.transferFrom(advertiserWallet, address(this), _rewardAmount);
 
@@ -201,7 +201,7 @@ contract ADXExchange is Ownable, Drainable {
 
 		bid.acceptedTime = now;
 
-		bidsByPublisher[publisher][bid.id] = bid;
+		bidsByAdslot[_slotId].push(_bidId);
 
 		LogBidAccepted(bid.id, publisher, _slotId, adSlotIpfs);
 	}
@@ -264,27 +264,54 @@ contract ADXExchange is Ownable, Drainable {
 	// Public constant functions
 	//
 
-	function getBidsFromArr(uint _status) 
+	function getBidsFromArr(uint[] arr, uint _state) 
 		internal
+		returns (uint[])
 	{
-		Bids[] all;
+		uint[] memory all;
+		uint count;
+		BidState state = BidState(_state);
 		for (uint i = 0; i != arr.length; i ++ ) {
-			
+			var id = arr[i];
+			var bid = bidsById[id];
+			if (bid.state == state) {
+				all[count] = id;
+				count += 1;
+			}
 		}
+		return all;
 	}
 
-	function getBidsByAdunit()
-		constant
+	function getAllBidsByAdunit(uint _adunitId) 
+		constant 
 		external
+		returns (uint[])
 	{
-
+		return bidsByAdunit[_adunitId];
 	}
 
-	function getBidsByAdslot()
+	function getBidsByAdunit(uint _adunitId, uint _state)
 		constant
 		external
+		returns (uint[])
 	{
+		return getBidsFromArr(bidsByAdunit[_adunitId], _state);
+	}
 
+	function getAllBidsByAdslot(uint _adslotId) 
+		constant 
+		external
+		returns (uint[])
+	{
+		return bidsByAdslot[_adslotId];
+	}
+
+	function getBidsByAdslot(uint _adslotId, uint _state)
+		constant
+		external
+		returns (uint[])
+	{
+		return getBidsFromArr(bidsByAdslot[_adslotId], _state);
 	}
 
 	//
