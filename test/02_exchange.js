@@ -270,5 +270,55 @@ contract('ADXExchange', function(accounts) {
 	
 	// Bid can be completed
 
+	it("non-publisher/advertiser can NOT confirm the bid", function() {
+		return new Promise((resolve, reject) => {
+			adxExchange.verifyBid(2, { from: accOne, gas: 400000 })
+			.catch((err) => {
+				assert.equal(err.message, 'VM Exception while processing transaction: invalid opcode')
+				resolve()
+			})
+		})
+	})
+
+	it("publisher can confirm the bid", function() {
+		return adxExchange.verifyBid(2, { from: accThree, gas: 400000 })
+	})
+
+	it("advertiser can confirm the bid", function() {
+		return adxExchange.verifyBid(2, { from: accTwo, gas: 400000 })
+		.then(function(res) {
+			var ev = res.logs[0]
+			if (! ev) throw 'no event'
+			assert.equal(ev.event, 'LogBidCompleted')
+		})
+	})
+
+	// TODO: repeat that test, but in the other order
+
+
 	// Bid can be refunded, but only if required (it is expired)
+
+	/*
+	it("can place a thirdd bid", function() {
+		return adxExchange.placeBid(adunitId, 50 * 10000, 0, {
+			from: accTwo,
+			gas: 860000 // costly :((
+		}).then(function(res) {
+			var ev = res.logs[0]
+			if (! ev) throw 'no event'
+			assert.equal(ev.event, 'LogBidOpened')
+			assert.equal(ev.args.bidId, 2)
+			assert.equal(ev.args.advertiser, accTwo)
+			assert.equal(ev.args.adunitId, adunitId)
+			assert.equal(ev.args.adunitIpfs, '0x4820000000000000000000000000000000000000000000000000000000000000')
+			assert.equal(ev.args.rewardAmount, 50 * 10000)
+			assert.equal(ev.args.timeout, 0)
+
+			return adxToken.balanceOf(adxExchange.address)
+		}).then(function(bal) {
+			assert.equal(bal.toNumber(), 50 * 10000)
+		})
+	})
+	*/
+
 })

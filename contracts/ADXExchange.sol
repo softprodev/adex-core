@@ -31,8 +31,12 @@ contract ADXExchange is Ownable, Drainable {
 		Accepted, // in progress
 
 		// the following states MUST unlock the ADX amount (return to advertiser)
-		Expired, Canceled, // fail states
-		Completed // success states
+		// fail states
+		Canceled,
+		Expired,
+
+		// success state:
+		Completed
 	}
 
 	struct Bid {
