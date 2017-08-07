@@ -7,6 +7,7 @@ import "../zeppelin-solidity/contracts/token/ERC20.sol";
 import "./ADXRegistry.sol";
 
 contract ADXExchange is Ownable, Drainable {
+	string public name = "AdEx Exchange";
 
 	ERC20 token;
 	ADXRegistry registry;
