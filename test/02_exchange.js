@@ -431,6 +431,12 @@ contract('ADXExchange', function(accounts) {
 			assert.equal(ev.args.publisher, accThree)
 			assert.equal(ev.args.adslotId, adslotId)
 			assert.equal(ev.args.adslotIpfs, '0x4821000000000000000000000000000000000000000000000000000000000000')
+		
+			return adxToken.balanceOf(advWallet)
+		})
+		.then(function(bal) {
+			// has 20k left, after we spent 50k for a bid and locked another 40k
+			assert.equal(bal.toNumber(), 20 * 10000)
 		})
 	})
 
@@ -456,9 +462,11 @@ contract('ADXExchange', function(accounts) {
 			if (! ev) throw 'no event'
 			assert.equal(ev.event, 'LogBidExpired')
 
-			// TODO: test balances
+			return adxToken.balanceOf(advWallet)
+		})
+		.then(function(bal) {
+			assert.equal(bal.toNumber(), 60 * 10000)
 		})
 	})
-
 
 })
