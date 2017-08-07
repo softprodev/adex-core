@@ -155,7 +155,7 @@ contract('ADXExchange', function(accounts) {
 	})
 
 
-	it("can NOT place a bid because we don't own the ad unit", function() {
+	it("can NOT place a bid because we don't own the ad unit (not the advertiser)", function() {
 		// if this was allowed, it would still send the adx to accTwo (the rightful owner), because 'advertiser' is taken from the ad unit object
 		return new Promise((resolve, reject) => {
 			adxExchange.placeBid(adunitId, 50 * 10000, 0, {
@@ -260,6 +260,17 @@ contract('ADXExchange', function(accounts) {
 	it("advertiser can NOT confirm the bid before it's accepted", function() {
 		return new Promise((resolve, reject) => {
 			adxExchange.verifyBid(2, { from: accTwo, gas: 400000 })
+			.catch((err) => {
+				assert.equal(err.message, 'VM Exception while processing transaction: invalid opcode')
+				resolve()
+			})
+			.then(function() { reject('cant be here - unexpected success') })
+		})
+	})
+
+	it("can NOT accept a bid if you're not the publisher", function() {
+		return new Promise((resolve, reject) => {
+			adxExchange.acceptBid(2, adslotId, { from: accTwo, gas: 860000 })
 			.catch((err) => {
 				assert.equal(err.message, 'VM Exception while processing transaction: invalid opcode')
 				resolve()
@@ -400,7 +411,7 @@ contract('ADXExchange', function(accounts) {
 		return adxToken.approve(adxExchange.address, 40 * 10000, { from: advWallet })
 	})
 	
-	it("can place a third bid with 300s timeout", function() {
+	it("can place a third bid with 300s timeout (and accept it)", function() {
 		return adxExchange.placeBid(adunitId, 40 * 10000, 300, {
 			from: accTwo,
 			gas: 860000 // costly :((
