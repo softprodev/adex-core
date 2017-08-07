@@ -17,10 +17,8 @@ contract ADXExchange is Ownable, Drainable {
 	mapping (address => mapping (uint => Bid)) bidsByAdvertiser; // bids set out by advertisers
 	mapping (address => mapping (uint => Bid)) bidsByPublisher; // accepted by publisher
 
-	// TODO: active bids?
 	// TODO: the bid having a adunitType so that this can be filtered out
 	// TODO: consider the possibility of advertiser/publisher canceling a bid after it's been accepted on mutual concent; e.g. they don't agree on the blacklisting conditions 
-	// TODO: consider disagreement case; will the bid be "Accepted" until it expires? seems like an OK option actually...
 
 	// corresponds to enum types in ADXRegistry
 	uint constant ADUNIT = 0;
