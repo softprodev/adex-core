@@ -128,6 +128,7 @@ contract ADXExchange is Ownable, Drainable {
 	// Bid actions
 	// 
 
+	// the bid is placed by the advertiser
 	function placeBid(uint _adunitId, uint _rewardAmount, uint _timeout)
 		onlyRegisteredAcc
 	{
@@ -165,6 +166,7 @@ contract ADXExchange is Ownable, Drainable {
 		LogBidOpened(bid.id, advertiser, _adunitId, adIpfs, _rewardAmount, _timeout);
 	}
 
+	// the bid is canceled by the advertiser
 	function cancelBid(uint _bidId)
 		onlyRegisteredAcc
 		onlyExistingBid(_bidId)
@@ -178,6 +180,7 @@ contract ADXExchange is Ownable, Drainable {
 		LogBidCanceled(bid.id);
 	}
 
+	// a bid is accepted by a publisher for a given ad slot
 	function acceptBid(uint _bidId, uint _slotId) 
 		onlyRegisteredAcc 
 		onlyExistingBid(_bidId) 
@@ -213,7 +216,7 @@ contract ADXExchange is Ownable, Drainable {
 		LogBidAccepted(bid.id, publisher, _slotId, adSlotIpfs);
 	}
 
-	// both publisher and advertiser have to call this for a bid to be considered verified; it has to be within margin of error
+	// both publisher and advertiser have to call this for a bid to be considered verified
 	function verifyBid(uint _bidId)
 		onlyRegisteredAcc
 		onlyExistingBid(_bidId)
