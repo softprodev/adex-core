@@ -17,8 +17,9 @@ contract ADXExchange is Ownable, Drainable {
 	mapping (uint => uint[]) bidsByAdunit; // bids set out by ad unit
 	mapping (uint => uint[]) bidsByAdslot; // accepted by publisher, by ad slot
 
-	// TODO: the bid having a adunitType so that this can be filtered out
-	// TODO: consider the possibility of advertiser/publisher canceling a bid after it's been accepted on mutual concent; e.g. they don't agree on the blacklisting conditions 
+	// TODO: CONSIDER: the bid having a adunitType so that this can be filtered out
+	// TODO: CONSIDER: the possibility of advertiser/publisher canceling a bid after it's been accepted on mutual concent; e.g. they don't agree on the blacklisting conditions 
+	// TODO: consider locking ad units / ad slots or certain properties from them so that bids cannot be ruined by editing them
 
 	// corresponds to enum types in ADXRegistry
 	uint constant ADUNIT = 0;
@@ -33,7 +34,7 @@ contract ADXExchange is Ownable, Drainable {
 		Canceled,
 		Expired,
 
-		// success state:
+		// success states
 		Completed
 	}
 
@@ -312,6 +313,17 @@ contract ADXExchange is Ownable, Drainable {
 		returns (uint[])
 	{
 		return getBidsFromArr(bidsByAdslot[_adslotId], _state);
+	}
+
+	function getBid(uint _bidId) 
+		onlyExistingBid(_bidId)
+		constant
+		external
+		returns (uint _state, uint _reward)
+	{
+		// TODO: others
+		var bid = bidsById[_bidId];
+		return (uint(bid.state), bid.amount);
 	}
 
 	//
