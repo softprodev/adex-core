@@ -35,7 +35,8 @@ contract ADXExchange is Ownable, Drainable {
 		Expired,
 
 		// success states
-		Completed
+		Completed,
+		Claimed
 	}
 
 	struct Bid {
@@ -44,9 +45,6 @@ contract ADXExchange is Ownable, Drainable {
 
 		// ADX reward amount
 		uint amount;
-
-		// whether the reward has been claimed
-		bool claimed;
 
 		// Links on advertiser side
 		address advertiser;
@@ -235,8 +233,7 @@ contract ADXExchange is Ownable, Drainable {
 	{
 		var bid = bidsById[_bidId];
 		
-		require(!bid.claimed);
-		bid.claimed = true;
+		bid.state = BidState.Claimed;
 
 		token.transfer(bid.publisherWallet, bid.amount);
 
