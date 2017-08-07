@@ -268,6 +268,16 @@ contract('ADXExchange', function(accounts) {
 		})
 	})
 	
+	it("can NOT claim bid reward before it's confirmed", function() {
+		return new Promise((resolve, reject) => {
+			adxExchange.claimBidReward(2, { from: accThree, gas: 400000 })
+			.catch((err) => {
+				assert.equal(err.message, 'VM Exception while processing transaction: invalid opcode')
+				resolve()
+			})
+		})
+	})
+
 	// Bid can be completed
 
 	it("non-publisher/advertiser can NOT confirm the bid", function() {
@@ -284,6 +294,16 @@ contract('ADXExchange', function(accounts) {
 		return adxExchange.verifyBid(2, { from: accThree, gas: 400000 })
 	})
 
+	it("can NOT claim bid reward before it's FULLY confirmed (advertiser + publisher)", function() {
+		return new Promise((resolve, reject) => {
+			adxExchange.claimBidReward(2, { from: accThree, gas: 400000 })
+			.catch((err) => {
+				assert.equal(err.message, 'VM Exception while processing transaction: invalid opcode')
+				resolve()
+			})
+		})
+	})
+
 	it("advertiser can confirm the bid", function() {
 		return adxExchange.verifyBid(2, { from: accTwo, gas: 400000 })
 		.then(function(res) {
@@ -295,6 +315,31 @@ contract('ADXExchange', function(accounts) {
 
 	// TODO: repeat that test, but in the other order
 
+	it("non-publisher can NOT claim bid reward", function() {
+		return new Promise((resolve, reject) => {
+			adxExchange.claimBidReward(2, { from: accTwo, gas: 400000 })
+			.catch((err) => {
+				assert.equal(err.message, 'VM Exception while processing transaction: invalid opcode')
+				resolve()
+			})
+		})
+	})
+
+	it("publisher can claim bid reward", function() {
+		return adxExchange.claimBidReward(2, { from: accThree, gas: 400000 })
+		.then(function(res) {
+			var ev = res.logs[0]
+			if (! ev) throw 'no event'
+			assert.equal(ev.event, 'LogBidRewardClaimed')
+
+			return adxToken.balanceOf(pubWallet)
+		})
+		.then(function(balance) {
+			assert.equal(balance.toNumber(), 50 * 10000)
+		})
+	})
+
+	// TODO: publisher can NOT claim a bid reward twice, even if the funds are there
 
 	// Bid can be refunded, but only if required (it is expired)
 
