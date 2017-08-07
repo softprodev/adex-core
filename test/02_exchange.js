@@ -279,6 +279,21 @@ contract('ADXExchange', function(accounts) {
 		})
 	})
 
+
+	it("can NOT accept a bid that does not exist", function() {
+		return new Promise((resolve, reject) => {
+			adxExchange.acceptBid(20, adslotId, {
+		 		from: accThree,
+		 		gas: 860000
+		 	})
+			.catch((err) => {
+				assert.equal(err.message, 'VM Exception while processing transaction: invalid opcode')
+				resolve()
+			})
+			.then(function() { reject('cant be here - unexpected success') })
+		})
+	})
+
 	it("can accept a bid", function() {
 	 	return adxExchange.acceptBid(2, adslotId, {
 	 		from: accThree,
@@ -296,6 +311,20 @@ contract('ADXExchange', function(accounts) {
 		})
 	})
 
+	it("can NOT accept a bid once it's accepted", function() {
+		return new Promise((resolve, reject) => {
+			adxExchange.acceptBid(2, adslotId, {
+		 		from: accThree,
+		 		gas: 860000
+		 	})
+			.catch((err) => {
+				assert.equal(err.message, 'VM Exception while processing transaction: invalid opcode')
+				resolve()
+			})
+			.then(function() { reject('cant be here - unexpected success') })
+		})
+	})
+	
 	it("can NOT cancel a bid once it's accepted", function() {
 		return new Promise((resolve, reject) => {
 			adxExchange.cancelBid(2, { from: accTwo, gas: 300000 })
