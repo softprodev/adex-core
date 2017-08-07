@@ -18,7 +18,7 @@ contract ADXExchange is Ownable, Drainable {
 	mapping (uint => uint[]) bidsByAdunit; // bids set out by ad unit
 	mapping (uint => uint[]) bidsByAdslot; // accepted by publisher, by ad slot
 
-	// TODO: some properties in the bid structure - requiredPoints/achievedPoints/peers for example - are not used atm
+	// TODO: some properties in the bid structure - achievedPoints/peers for example - are not used atm
 	
 	// CONSIDER: the bid having a adunitType so that this can be filtered out
 	// WHY IT'S NOT IMPORTANT: you can get bids by ad units / ad slots, which is filter enough already considering we know their types
@@ -126,7 +126,7 @@ contract ADXExchange is Ownable, Drainable {
 	// 
 
 	// the bid is placed by the advertiser
-	function placeBid(uint _adunitId, uint _rewardAmount, uint _timeout)
+	function placeBid(uint _adunitId, uint _target, uint _rewardAmount, uint _timeout)
 		onlyRegisteredAcc
 	{
 		bytes32 adIpfs;
@@ -153,6 +153,7 @@ contract ADXExchange is Ownable, Drainable {
 		bid.adUnit = _adunitId;
 		bid.adUnitIpfs = adIpfs;
 
+		bid.requiredPoints = _target;
 		bid.requiredExecTime = _timeout;
 
 		bidsById[bid.id] = bid;
@@ -160,7 +161,7 @@ contract ADXExchange is Ownable, Drainable {
 
 		token.transferFrom(advertiserWallet, address(this), _rewardAmount);
 
-		LogBidOpened(bid.id, advertiser, _adunitId, adIpfs, _rewardAmount, _timeout);
+		LogBidOpened(bid.id, advertiser, _adunitId, adIpfs, _target, _rewardAmount, _timeout);
 	}
 
 	// the bid is canceled by the advertiser
@@ -212,7 +213,7 @@ contract ADXExchange is Ownable, Drainable {
 
 		LogBidAccepted(bid.id, publisher, _slotId, adSlotIpfs);
 	}
-	
+
 	// the bid is given up by the publisher, therefore canceling it and returning the funds to the advertiser
 	function giveupBid(uint _bidId)
 		onlyRegisteredAcc
@@ -348,7 +349,7 @@ contract ADXExchange is Ownable, Drainable {
 	//
 	// Events
 	//
-	event LogBidOpened(uint bidId, address advertiser, uint adunitId, bytes32 adunitIpfs, uint rewardAmount, uint timeout);
+	event LogBidOpened(uint bidId, address advertiser, uint adunitId, bytes32 adunitIpfs, uint target, uint rewardAmount, uint timeout);
 	event LogBidAccepted(uint bidId, address publisher, uint adslotId, bytes32 adslotIpfs);
 	event LogBidCanceled(uint bidId);
 	event LogBidExpired(uint bidId);

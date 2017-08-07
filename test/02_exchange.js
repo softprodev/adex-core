@@ -43,7 +43,7 @@ contract('ADXExchange', function(accounts) {
 
 	it("can NOT place a bid without an account", function() {
 		return new Promise((resolve, reject) => {
-			adxExchange.placeBid(1, 50 * 10000, 0, {
+			adxExchange.placeBid(1, 1000, 50 * 10000, 0, {
 				from: accTwo,
 				gas: 860000 // costly :((
 			}).catch((err) => {
@@ -74,7 +74,7 @@ contract('ADXExchange', function(accounts) {
 
 	it("can NOT place a bid without an ad unit", function() {
 		return new Promise((resolve, reject) => {
-			adxExchange.placeBid(0, 50 * 10000, 0, {
+			adxExchange.placeBid(0, 1000, 50 * 10000, 0, {
 				from: accTwo,
 				gas: 860000 // costly :((
 			}).catch((err) => {
@@ -139,7 +139,7 @@ contract('ADXExchange', function(accounts) {
 
 	it("can NOT place a bid because of allowance", function() {
 		return new Promise((resolve, reject) => {
-			adxExchange.placeBid(adunitId, 50 * 10000, 0, {
+			adxExchange.placeBid(adunitId, 1000, 50 * 10000, 0, {
 				from: accTwo,
 				gas: 860000 // costly :((
 			}).catch((err) => {
@@ -158,7 +158,7 @@ contract('ADXExchange', function(accounts) {
 	it("can NOT place a bid because we don't own the ad unit (not the advertiser)", function() {
 		// if this was allowed, it would still send the adx to accTwo (the rightful owner), because 'advertiser' is taken from the ad unit object
 		return new Promise((resolve, reject) => {
-			adxExchange.placeBid(adunitId, 50 * 10000, 0, {
+			adxExchange.placeBid(adunitId, 1000, 50 * 10000, 0, {
 				from: accOne,
 				gas: 860000 // costly :((
 			}).catch((err) => {
@@ -170,7 +170,7 @@ contract('ADXExchange', function(accounts) {
 	})
 
 	it("can place a bid", function() {
-		return adxExchange.placeBid(adunitId, 50 * 10000, 0, {
+		return adxExchange.placeBid(adunitId, 100, 50 * 10000, 0, {
 			from: accTwo,
 			gas: 860000 // costly :((
 		}).then(function(res) {
@@ -180,6 +180,7 @@ contract('ADXExchange', function(accounts) {
 			assert.equal(ev.args.bidId, 1)
 			assert.equal(ev.args.advertiser, accTwo)
 			assert.equal(ev.args.adunitId, adunitId)
+			assert.equal(ev.args.target, 100)
 			assert.equal(ev.args.rewardAmount, 50 * 10000)
 			assert.equal(ev.args.timeout, 0);
 
@@ -237,7 +238,7 @@ contract('ADXExchange', function(accounts) {
 	})
 
 	it("can place a second bid", function() {
-		return adxExchange.placeBid(adunitId, 50 * 10000, 0, {
+		return adxExchange.placeBid(adunitId, 1000, 50 * 10000, 0, {
 			from: accTwo,
 			gas: 860000 // costly :((
 		}).then(function(res) {
@@ -445,7 +446,7 @@ contract('ADXExchange', function(accounts) {
 	})
 	
 	it("can place a third bid with 300s timeout (and accept it)", function() {
-		return adxExchange.placeBid(adunitId, 40 * 10000, 300, {
+		return adxExchange.placeBid(adunitId, 1000, 40 * 10000, 300, {
 			from: accTwo,
 			gas: 860000 // costly :((
 		}).then(function(res) {
@@ -522,7 +523,7 @@ contract('ADXExchange', function(accounts) {
 		.then(function(bal) {
 			firstBal = bal.toNumber()
 
-			return adxExchange.placeBid(adunitId, 5 * 10000, 0, {
+			return adxExchange.placeBid(adunitId, 1000, 5 * 10000, 0, {
 				from: accTwo,
 				gas: 860000 // costly :((
 			})
