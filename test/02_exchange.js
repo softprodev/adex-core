@@ -251,6 +251,16 @@ contract('ADXExchange', function(accounts) {
 		})
 	})
 
+	it("advertiser can NOT confirm the bid before it's accepted", function() {
+		return new Promise((resolve, reject) => {
+			adxExchange.verifyBid(2, { from: accTwo, gas: 400000 })
+			.catch((err) => {
+				assert.equal(err.message, 'VM Exception while processing transaction: invalid opcode')
+				resolve()
+			})
+		})
+	})
+
 	it("can accept a bid", function() {
 	 	return adxExchange.acceptBid(2, adslotId, {
 	 		from: accThree,
@@ -281,6 +291,17 @@ contract('ADXExchange', function(accounts) {
 	it("can NOT claim bid reward before it's confirmed", function() {
 		return new Promise((resolve, reject) => {
 			adxExchange.claimBidReward(2, { from: accThree, gas: 400000 })
+			.catch((err) => {
+				assert.equal(err.message, 'VM Exception while processing transaction: invalid opcode')
+				resolve()
+			})
+		})
+	})
+
+
+	it("can NOT refund the bid even considering it's Open", function() {
+		return new Promise((resolve, reject) => {
+			adxExchange.refundBid(2, { from: accTwo, gas: 300000 })
 			.catch((err) => {
 				assert.equal(err.message, 'VM Exception while processing transaction: invalid opcode')
 				resolve()
@@ -383,7 +404,46 @@ contract('ADXExchange', function(accounts) {
 			return adxToken.balanceOf(adxExchange.address)
 		}).then(function(bal) {
 			assert.equal(bal.toNumber(), 40 * 10000)
+
+			return adxExchange.acceptBid(3, adslotId, {
+		 		from: accThree,
+		 		gas: 860000
+		 	})
+		}).then(function(res) {
+			var ev = res.logs[0]
+			if (! ev) throw 'no event'
+			assert.equal(ev.event, 'LogBidAccepted')
+			assert.equal(ev.args.bidId, 3)
+			assert.equal(ev.args.publisher, accThree)
+			assert.equal(ev.args.adslotId, adslotId)
+			assert.equal(ev.args.adslotIpfs, '0x4821000000000000000000000000000000000000000000000000000000000000')
 		})
 	})
-	
+
+	it("can NOT refund the bid", function() {
+		return new Promise((resolve, reject) => {
+			adxExchange.refundBid(3, { from: accTwo, gas: 300000 })
+			.catch((err) => {
+				assert.equal(err.message, 'VM Exception while processing transaction: invalid opcode')
+				resolve()
+			})
+		})
+	})
+
+	it("move time 300s", function() {
+		return time.moveTime(web3, 310)
+	})
+
+	it("bid should be timed out, can now refund the bid", function() {
+		return adxExchange.refundBid(3, { from: accTwo, gas: 300000 })
+		.then(function(res) {
+			var ev = res.logs[0]
+			if (! ev) throw 'no event'
+			assert.equal(ev.event, 'LogBidExpired')
+
+			// TODO: test balances
+		})
+	})
+
+
 })
