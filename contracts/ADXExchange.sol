@@ -212,6 +212,7 @@ contract ADXExchange is Ownable, Drainable {
 	function verifyBid(uint _bidId)
 		onlyRegisteredAcc
 		existingBid(_bidId)
+		onlyBidState(_bidId, BidState.Accepted)
 	{
 		var bid = bidsById[_bidId];
 
@@ -248,7 +249,7 @@ contract ADXExchange is Ownable, Drainable {
 	function refundBid(uint _bidId)
 		onlyRegisteredAcc
 		onlyBidOwner(_bidId)
-		onlyBidState(_bidId, BidState.Open)
+		onlyBidState(_bidId, BidState.Accepted)
 	{
 		var bid = bidsById[_bidId];
 		require(bid.requiredExecTime > 0); // you can't refund if you haven't set a timeout
