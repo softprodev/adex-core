@@ -683,4 +683,11 @@ contract('ADXExchange', function(accounts) {
 			assert.equal(res[8], '0x4821000000000000000000000000000000000000000000000000000000000000')
 		})
 	})
+
+	it("can get bid peers", function() {
+		return adxExchange.getBidPeers(2)
+		.then(function(res) {
+			assert.equal(res.length, 0)
+		})
+	})
 })
