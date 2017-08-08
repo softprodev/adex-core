@@ -356,7 +356,7 @@ contract('ADXExchange', function(accounts) {
 		})
 	})
 	
-	it("can NOT claim bid reward before it's confirmed", function() {
+	it("can NOT claim bid reward before it's verified", function() {
 		return new Promise((resolve, reject) => {
 			adxExchange.claimBidReward(2, { from: accThree, gas: 400000 })
 			.catch((err) => {
@@ -392,11 +392,11 @@ contract('ADXExchange', function(accounts) {
 		})
 	})
 
-	it("publisher can confirm the bid", function() {
+	it("publisher can verify the bid", function() {
 		return adxExchange.verifyBid(2, { from: accThree, gas: 400000 })
 	})
 
-	it("can NOT claim bid reward before it's FULLY confirmed (advertiser + publisher)", function() {
+	it("can NOT claim bid reward before it's FULLY verified (advertiser + publisher)", function() {
 		return new Promise((resolve, reject) => {
 			adxExchange.claimBidReward(2, { from: accThree, gas: 400000 })
 			.catch((err) => {
@@ -407,7 +407,7 @@ contract('ADXExchange', function(accounts) {
 		})
 	})
 
-	it("advertiser can confirm the bid", function() {
+	it("advertiser can verified the bid", function() {
 		return adxExchange.verifyBid(2, { from: accTwo, gas: 400000 })
 		.then(function(res) {
 			var ev = res.logs[0]
