@@ -71,7 +71,7 @@ contract ADXExchange is Ownable, Drainable {
 		uint requiredExecTime; // essentially a timeout
 
 		// Results
-		uint achievedPoints;
+		uint achievedPoints; // or maybe publisherSummary/advertiserSummary
 		bool confirmedByPublisher;
 		bool confirmedByAdvertiser;
 
@@ -215,6 +215,7 @@ contract ADXExchange is Ownable, Drainable {
 	}
 
 	// the bid is given up by the publisher, therefore canceling it and returning the funds to the advertiser
+	// same logic as cancelBid(), but different permissions
 	function giveupBid(uint _bidId)
 		onlyRegisteredAcc
 		onlyExistingBid(_bidId)

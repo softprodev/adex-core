@@ -516,18 +516,19 @@ contract('ADXExchange', function(accounts) {
 
 	// GIVEUP scenario
 	// TODO: test if non-accepted bid can't be gven up
-	/*
+	var firstBal;
 	it("can place a third bid and accept it, then give it up", function() {
-		var firstBal;
 		return adxToken.balanceOf(advWallet)
 		.then(function(bal) {
 			firstBal = bal.toNumber()
 
+			return adxToken.approve(adxExchange.address, 5 * 10000, { from: advWallet })
+		})
+		.then(function() {
 			return adxExchange.placeBid(adunitId, 1000, 5 * 10000, 0, {
 				from: accTwo,
 				gas: 860000 // costly :((
-			})
-
+			})			
 		})
 		.then(function(res) {
 			var ev = res.logs[0]
@@ -552,5 +553,41 @@ contract('ADXExchange', function(accounts) {
 			assert.equal(bal.toNumber() + 5 * 10000, firstBal)
 		})
 	})
-	*/
+
+	it("can NOT cancel the bid if you're no one", function() { // reference intended
+		return new Promise((resolve, reject) => {
+			adxExchange.giveupBid(4, { from: accOne, gas: 300000 })
+			.catch((err) => {
+				assert.equal(err.message, 'VM Exception while processing transaction: invalid opcode')
+				resolve()
+			})
+			.then(function() { reject('cant be here - unexpected success') })
+		})
+	})
+
+	it("can NOT cancel the bid if you're the advertiser", function() { // reference intended
+		return new Promise((resolve, reject) => {
+			adxExchange.giveupBid(4, { from: accTwo, gas: 300000 })
+			.catch((err) => {
+				assert.equal(err.message, 'VM Exception while processing transaction: invalid opcode')
+				resolve()
+			})
+			.then(function() { reject('cant be here - unexpected success') })
+		})
+	})
+
+	it("can give up a bid and will be refunded", function() {
+		return adxExchange.giveupBid(4, { from: accThree, gas: 300000 })
+		.then(function(res) {
+			var ev = res.logs[0]
+			if (! ev) throw 'no event'
+			assert.equal(ev.event, 'LogBidCanceled')
+			assert.equal(ev.args.bidId, 4)
+
+			return adxToken.balanceOf(advWallet)
+		})
+		.then(function(bal) {
+			assert.equal(bal.toNumber(), firstBal)
+		})
+	})
 })
