@@ -193,6 +193,13 @@ contract('ADXExchange', function(accounts) {
 		}).then(function(advBal) {
 			// advertiser still has 60k
 			assert.equal(advBal.toNumber(), 60 * 10000)
+
+			// check if it's reflected in the state
+			return adxExchange.getBidsByAdunit(adunitId, BidStates.Open)
+		}).then(function(res) {
+			assert.equal(res.length, 1)
+			// no need to check all
+			assert.equal(res[0].toNumber(), 1)
 		})
 	})
 
@@ -314,6 +321,7 @@ contract('ADXExchange', function(accounts) {
 		})
 	})
 
+	var acceptedTime;
 	it("can accept a bid", function() {
 	 	return adxExchange.acceptBid(2, adslotId, {
 	 		from: accThree,
@@ -326,6 +334,8 @@ contract('ADXExchange', function(accounts) {
 			assert.equal(ev.args.publisher, accThree)
 			assert.equal(ev.args.adslotId, adslotId)
 			assert.equal(ev.args.adslotIpfs, '0x4821000000000000000000000000000000000000000000000000000000000000')
+			acceptedTime = ev.args.acceptedTime;
+			assert.equal(ev.args.acceptedTime.toNumber() > 1502219400, true) // just ensure the acceptedTime makes vague sense
 
 			return adxToken.balanceOf(adxExchange.address)
 		})
@@ -657,4 +667,20 @@ contract('ADXExchange', function(accounts) {
 	})
 
 	// get single bids
+	it("get a single bid", function() {
+		return adxExchange.getBid(2)
+		.then(function(res) {
+			assert.equal(res[0].toNumber(), BidStates.Claimed)
+			assert.equal(res[1].toNumber(), 1000)
+			assert.equal(res[2].toNumber(), 0) // timeout
+			assert.equal(res[3].toNumber(), 50 * 10000)
+			assert.equal(res[4].toNumber(), acceptedTime.toNumber())
+
+			assert.equal(res[5], adunitId)
+			assert.equal(res[6], '0x4820000000000000000000000000000000000000000000000000000000000000')
+
+			assert.equal(res[7], adslotId)
+			assert.equal(res[8], '0x4821000000000000000000000000000000000000000000000000000000000000')
+		})
+	})
 })

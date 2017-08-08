@@ -211,7 +211,7 @@ contract ADXExchange is Ownable, Drainable {
 
 		bidsByAdslot[_slotId].push(_bidId);
 
-		LogBidAccepted(bid.id, publisher, _slotId, adSlotIpfs);
+		LogBidAccepted(bid.id, publisher, _slotId, adSlotIpfs, bid.acceptedTime);
 	}
 
 	// the bid is given up by the publisher, therefore canceling it and returning the funds to the advertiser
@@ -377,7 +377,7 @@ contract ADXExchange is Ownable, Drainable {
 	// Events
 	//
 	event LogBidOpened(uint bidId, address advertiser, uint adunitId, bytes32 adunitIpfs, uint target, uint rewardAmount, uint timeout);
-	event LogBidAccepted(uint bidId, address publisher, uint adslotId, bytes32 adslotIpfs);
+	event LogBidAccepted(uint bidId, address publisher, uint adslotId, bytes32 adslotIpfs, uint acceptedTime);
 	event LogBidCanceled(uint bidId);
 	event LogBidExpired(uint bidId);
 	event LogBidCompleted(uint bidId);
