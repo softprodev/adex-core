@@ -590,4 +590,7 @@ contract('ADXExchange', function(accounts) {
 			assert.equal(bal.toNumber(), firstBal)
 		})
 	})
+
+	// TODO: consider testing state more frequently
+	
 })

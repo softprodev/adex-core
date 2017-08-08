@@ -71,7 +71,7 @@ contract ADXExchange is Ownable, Drainable {
 		uint requiredExecTime; // essentially a timeout
 
 		// Results
-		uint achievedPoints; // or maybe publisherSummary/advertiserSummary
+		// XXX consider adding publisherSummary/advertiserSummary
 		bool confirmedByPublisher;
 		bool confirmedByAdvertiser;
 
@@ -341,16 +341,29 @@ contract ADXExchange is Ownable, Drainable {
 		constant
 		external
 		returns (
-			uint state, uint target, uint rewardAmount, 
-			uint adunitId, address advertiser, uint adslotId, address publisher
+			uint, uint, uint, uint, uint, 
+			//only ad slot and ad unit; everything else can be retrieved via the registry
+			uint, bytes32,
+			uint, bytes32
 		)
 	{
 		// TODO: others
 		var bid = bidsById[_bidId];
 		return (
-			uint(bid.state), bid.requiredPoints, bid.amount, 
-			bid.adUnit, bid.advertiser, bid.adSlot, bid.publisher
+			uint(bid.state), bid.requiredPoints, bid.requiredExecTime, bid.amount, bid.acceptedTime,
+			bid.adUnit, bid.adUnitIpfs, 
+			bid.adSlot, bid.adSlotIpfs
 		);
+	}
+
+	function getBidPeers(uint _bidId)
+		onlyExistingBid(_bidId)
+		constant
+		external
+		returns (bytes32[])
+	{
+		var bid = bidsById[_bidId];
+		return bid.peers;
 	}
 
 	//
