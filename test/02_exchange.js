@@ -635,6 +635,26 @@ contract('ADXExchange', function(accounts) {
 	})
 
 	// get by state
+	var BidStates = { Open: 0, Accepted: 1, Canceled: 2, Expired: 3, Completed: 4, Claimed: 5 };
+
+	it("get bids by ad unit and state", function() {
+		return adxExchange.getBidsByAdunit(adunitId, BidStates.Claimed)
+		.then(function(res) {
+			assert.equal(res.length, 1)
+			// no need to check all
+			assert.equal(res[0].toNumber(), 2)
+		})
+	})
+
+
+	it("get all bids by ad slot and state", function() {
+		return adxExchange.getBidsByAdslot(adslotId, BidStates.Claimed)
+		.then(function(res) {
+			assert.equal(res.length, 1)
+			// no need to check all
+			assert.equal(res[0].toNumber(), 2)
+		})
+	})
 
 	// get single bids
 })

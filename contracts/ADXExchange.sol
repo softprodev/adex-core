@@ -288,12 +288,17 @@ contract ADXExchange is Ownable, Drainable {
 
 	function getBidsFromArr(uint[] arr, uint _state) 
 		internal
-		returns (uint[])
+		returns (uint[] _all)
 	{
-		uint[] memory all;
-		uint count;
 		BidState state = BidState(_state);
-		for (uint i = 0; i != arr.length; i++) {
+
+		// separate array is needed because of solidity stupidity (pun intended ))) )
+		uint[] memory all = new uint[](arr.length);
+
+		uint count = 0;
+		uint i;
+
+		for (i = 0; i < arr.length; i++) {
 			var id = arr[i];
 			var bid = bidsById[id];
 			if (bid.state == state) {
@@ -301,7 +306,9 @@ contract ADXExchange is Ownable, Drainable {
 				count += 1;
 			}
 		}
-		return all;
+
+		_all = new uint[](count);
+		for (i = 0; i < count; i++) _all[i] = all[i];
 	}
 
 	function getAllBidsByAdunit(uint _adunitId) 
