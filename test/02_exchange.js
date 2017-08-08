@@ -196,6 +196,25 @@ contract('ADXExchange', function(accounts) {
 		})
 	})
 
+	// TODO: consider testing state more frequently
+	it("get all bids by ad unit - only one", function() {
+		return adxExchange.getAllBidsByAdunit(adunitId)
+		.then(function(res) {
+			assert.equal(res.length, 1)
+			// no need to check all
+			assert.equal(res[0].toNumber(), 1)
+		})
+	})
+
+
+	// TODO: consider testing state more frequently
+	it("get all bids by ad slot - zero", function() {
+		return adxExchange.getAllBidsByAdslot(adslotId)
+		.then(function(res) {
+			assert.equal(res.length, 0)
+		})
+	})
+
 	it("can NOT cancel a bid that's not ours", function() {
 		return new Promise((resolve, reject) => {
 			adxExchange.cancelBid(1, { from: accOne, gas: 300000 })
@@ -592,5 +611,30 @@ contract('ADXExchange', function(accounts) {
 	})
 
 	// TODO: consider testing state more frequently
-	
+	it("get all bids by ad unit", function() {
+		return adxExchange.getAllBidsByAdunit(adunitId)
+		.then(function(res) {
+			assert.equal(res.length, 4)
+			// no need to check all
+			assert.equal(res[1].toNumber(), 2)
+		})
+	})
+
+
+	// TODO: consider testing state more frequently
+	it("get all bids by ad slot", function() {
+		return adxExchange.getAllBidsByAdslot(adslotId)
+		.then(function(res) {
+			// 3, not 4, because one was canceled before being accepted
+			assert.equal(res.length, 3)
+			// bids should be 2, 3, 4
+			assert.equal(res[0].toNumber(), 2)
+			assert.equal(res[1].toNumber(), 3)
+			assert.equal(res[2].toNumber(), 4)
+		})
+	})
+
+	// get by state
+
+	// get single bids
 })

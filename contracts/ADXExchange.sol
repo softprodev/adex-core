@@ -293,7 +293,7 @@ contract ADXExchange is Ownable, Drainable {
 		uint[] memory all;
 		uint count;
 		BidState state = BidState(_state);
-		for (uint i = 0; i != arr.length; i ++ ) {
+		for (uint i = 0; i != arr.length; i++) {
 			var id = arr[i];
 			var bid = bidsById[id];
 			if (bid.state == state) {
