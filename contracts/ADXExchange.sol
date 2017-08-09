@@ -76,7 +76,8 @@ contract ADXExchange is Ownable, Drainable {
 		bool confirmedByAdvertiser;
 
 		// State channel peers
-		bytes32[] peers;
+		bytes32 publisherPeer;
+		bytes32 advertiserPeer;
 	}
 
 	//
@@ -361,16 +362,6 @@ contract ADXExchange is Ownable, Drainable {
 			bid.adUnit, bid.adUnitIpfs, 
 			bid.adSlot, bid.adSlotIpfs
 		);
-	}
-
-	function getBidPeers(uint _bidId)
-		onlyExistingBid(_bidId)
-		constant
-		external
-		returns (bytes32[])
-	{
-		var bid = bidsById[_bidId];
-		return bid.peers;
 	}
 
 	//

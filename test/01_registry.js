@@ -79,7 +79,7 @@ contract('ADXRegistry', function(accounts) {
 			assert.equal(web3.toUtf8(ev.args.name), 'stremio')
 			assert.equal(ev.args.ipfs, '0x4700000000000000000000000000000000000000000000000000000000000000');
 			assert.equal(ev.args.wallet, wallet)
-			assert.equal(web3.toUtf8(ev.args.meta), '{}')
+			assert.equal(ev.args.meta, '{}')
 		})
 	})
 
@@ -102,7 +102,7 @@ contract('ADXRegistry', function(accounts) {
 			assert.equal(web3.toUtf8(ev.args.name), 'stremio')
 			assert.equal(ev.args.ipfs, '0x4200000000000000000000000000000000000000000000000000000000000000')
 			assert.equal(ev.args.wallet, wallet)
-			assert.equal(web3.toUtf8(ev.args.meta), '{ "email": "office@strem.io" }')
+			assert.equal(ev.args.meta, '{ "email": "office@strem.io" }')
 		})
 	})
 
@@ -131,7 +131,7 @@ contract('ADXRegistry', function(accounts) {
 			assert.equal(ev.args.itemType, ADUNIT);
 			assert.equal(ev.args.id, 1)
 			assert.equal(web3.toUtf8(ev.args.name), 'foobar ad unit')
-			assert.equal(web3.toUtf8(ev.args.meta), '{}')
+			assert.equal(ev.args.meta, '{}')
 			assert.equal(ev.args.ipfs, '0x4200000000000000000000000000000000000000000000000000000000000000');
 			assert.equal(ev.args.owner, accOne)
 
@@ -150,7 +150,7 @@ contract('ADXRegistry', function(accounts) {
 			assert.equal(ev.event, 'LogItemModified')
 			assert.equal(ev.args.itemType, ADUNIT);
 			assert.equal(web3.toUtf8(ev.args.name), 'foobar campaign')
-			assert.equal(web3.toUtf8(ev.args.meta), "{ someMeta: 's' }")
+			assert.equal(ev.args.meta, "{ someMeta: 's' }")
 			assert.equal(ev.args.ipfs, '0x4500000000000000000000000000000000000000000000000000000000000000');
 			assert.equal(ev.args.id.toNumber(), adunitId)
 			assert.equal(ev.args.owner, accOne)
@@ -183,7 +183,7 @@ contract('ADXRegistry', function(accounts) {
 			assert.equal(res[0], wallet)
 			assert.equal(res[1], '0x4200000000000000000000000000000000000000000000000000000000000000')
 			assert.equal(web3.toUtf8(res[2]), 'stremio')
-			assert.equal(web3.toUtf8(res[3]), '{ "email": "office@strem.io" }')
+			assert.equal(res[3], '{ "email": "office@strem.io" }')
 		})
 	})
 
@@ -202,7 +202,7 @@ contract('ADXRegistry', function(accounts) {
 			assert.equal(res[0], accOne)
 			assert.equal(res[1], '0x4500000000000000000000000000000000000000000000000000000000000000')
 			assert.equal(web3.toUtf8(res[2]), 'foobar campaign')
-			assert.equal(web3.toUtf8(res[3]), "{ someMeta: 's' }")
+			assert.equal(res[3], "{ someMeta: 's' }")
 		})
 	})
 
