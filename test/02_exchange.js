@@ -67,7 +67,7 @@ contract('ADXExchange', function(accounts) {
 			assert.equal(web3.toUtf8(ev.args.name), 'vyperCola')
 			assert.equal(ev.args.ipfs, '0x5700000000000000000000000000000000000000000000000000000000000000');
 			assert.equal(ev.args.wallet, advWallet)
-			assert.equal(ev.args.meta, '{}')
+			assert.equal(web3.toUtf8(ev.args.meta), '{}')
 		})
 	})
 
@@ -96,7 +96,7 @@ contract('ADXExchange', function(accounts) {
 			assert.equal(ev.args.itemType, ADUNIT);
 			assert.equal(ev.args.id, 1)
 			assert.equal(web3.toUtf8(ev.args.name), 'foobar ad unit')
-			assert.equal(ev.args.meta, '{}')
+			assert.equal(web3.toUtf8(ev.args.meta), '{}')
 			assert.equal(ev.args.ipfs, '0x4820000000000000000000000000000000000000000000000000000000000000');
 			assert.equal(ev.args.owner, accTwo)
 
@@ -121,7 +121,7 @@ contract('ADXExchange', function(accounts) {
 			assert.equal(ev.args.itemType, ADSLOT);
 			assert.equal(ev.args.id, 1)
 			assert.equal(web3.toUtf8(ev.args.name), 'foobar ad slot')
-			assert.equal(ev.args.meta, '{}')
+			assert.equal(web3.toUtf8(ev.args.meta), '{}')
 			assert.equal(ev.args.ipfs, '0x4821000000000000000000000000000000000000000000000000000000000000');
 			assert.equal(ev.args.owner, accThree)
 
