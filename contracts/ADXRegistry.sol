@@ -29,7 +29,7 @@ contract ADXRegistry is Ownable, Drainable {
 
 		bytes32 ipfs; // ipfs addr for additional (larger) meta
 		bytes32 name; // name
-		string meta; // metadata, can be JSON, can be other format, depends on the high-level implementation
+		bytes32 meta; // metadata, can be JSON, can be other format, depends on the high-level implementation
 
 		bytes32 signature; // signature in the off-blockchain state channel
 		
@@ -46,7 +46,7 @@ contract ADXRegistry is Ownable, Drainable {
 
 		bytes32 ipfs; // ipfs addr for additional (larger) meta
 		bytes32 name; // name
-		string meta; // metadata, can be JSON, can be other format, depends on the high-level implementation
+		bytes32 meta; // metadata, can be JSON, can be other format, depends on the high-level implementation
 	}
 
 	modifier onlyRegistered() {
@@ -57,7 +57,7 @@ contract ADXRegistry is Ownable, Drainable {
 
 	// can be called over and over to update the data
 	// XXX consider entrance barrier, such as locking in some ADX
-	function register(bytes32 _name, address _wallet, bytes32 _ipfs, bytes32 _sig, string _meta)
+	function register(bytes32 _name, address _wallet, bytes32 _ipfs, bytes32 _sig, bytes32 _meta)
 		external
 	{
 		require(_wallet != 0);
@@ -80,7 +80,7 @@ contract ADXRegistry is Ownable, Drainable {
 	}
 
 	// use _id = 0 to create a new item, otherwise modify existing
-	function registerItem(uint _type, uint _id, bytes32 _ipfs, bytes32 _name, string _meta)
+	function registerItem(uint _type, uint _id, bytes32 _ipfs, bytes32 _name, bytes32 _meta)
 		onlyRegistered
 	{
 		// XXX _type sanity check?
@@ -134,7 +134,7 @@ contract ADXRegistry is Ownable, Drainable {
 	function getAccount(address _acc)
 		constant
 		public
-		returns (address, bytes32, bytes32, string)
+		returns (address, bytes32, bytes32, bytes32)
 	{
 		var acc = accounts[_acc];
 		require(acc.addr != 0);
@@ -154,7 +154,7 @@ contract ADXRegistry is Ownable, Drainable {
 	function getItem(uint _type, uint _id) 
 		constant
 		public
-		returns (address, bytes32, bytes32, string)
+		returns (address, bytes32, bytes32, bytes32)
 	{
 		var item = items[_type][_id];
 		require(item.id != 0);
@@ -171,9 +171,9 @@ contract ADXRegistry is Ownable, Drainable {
 	}
 
 	// Events
-	event LogAccountRegistered(address addr, address wallet, bytes32 ipfs, bytes32 name, string meta);
-	event LogAccountModified(address addr, address wallet, bytes32 ipfs, bytes32 name, string meta);
+	event LogAccountRegistered(address addr, address wallet, bytes32 ipfs, bytes32 name, bytes32 meta);
+	event LogAccountModified(address addr, address wallet, bytes32 ipfs, bytes32 name, bytes32 meta);
 	
-	event LogItemRegistered(address owner, uint itemType, uint id, bytes32 ipfs, bytes32 name, string meta);
-	event LogItemModified(address owner, uint itemType, uint id, bytes32 ipfs, bytes32 name, string meta);
+	event LogItemRegistered(address owner, uint itemType, uint id, bytes32 ipfs, bytes32 name, bytes32 meta);
+	event LogItemModified(address owner, uint itemType, uint id, bytes32 ipfs, bytes32 name, bytes32 meta);
 }
