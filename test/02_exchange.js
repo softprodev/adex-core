@@ -43,7 +43,7 @@ contract('ADXExchange', function(accounts) {
 
 	it("can NOT place a bid without an account", function() {
 		return new Promise((resolve, reject) => {
-			adxExchange.placeBid(1, 1000, 50 * 10000, 0, {
+			adxExchange.placeBid(1, 1000, 50 * 10000, 0, "https://advertiser.com/peer", {
 				from: accTwo,
 				gas: 860000 // costly :((
 			}).catch((err) => {
@@ -74,7 +74,7 @@ contract('ADXExchange', function(accounts) {
 
 	it("can NOT place a bid without an ad unit", function() {
 		return new Promise((resolve, reject) => {
-			adxExchange.placeBid(0, 1000, 50 * 10000, 0, {
+			adxExchange.placeBid(0, 1000, 50 * 10000, 0, "https://advertiser.com/peer", {
 				from: accTwo,
 				gas: 860000 // costly :((
 			}).catch((err) => {
@@ -139,7 +139,7 @@ contract('ADXExchange', function(accounts) {
 
 	it("can NOT place a bid because of allowance", function() {
 		return new Promise((resolve, reject) => {
-			adxExchange.placeBid(adunitId, 1000, 50 * 10000, 0, {
+			adxExchange.placeBid(adunitId, 1000, 50 * 10000, 0, "https://advertiser.com/peer", {
 				from: accTwo,
 				gas: 860000 // costly :((
 			}).catch((err) => {
@@ -158,7 +158,7 @@ contract('ADXExchange', function(accounts) {
 	it("can NOT place a bid because we don't own the ad unit (not the advertiser)", function() {
 		// if this was allowed, it would still send the adx to accTwo (the rightful owner), because 'advertiser' is taken from the ad unit object
 		return new Promise((resolve, reject) => {
-			adxExchange.placeBid(adunitId, 1000, 50 * 10000, 0, {
+			adxExchange.placeBid(adunitId, 1000, 50 * 10000, 0,"https://advertiser.com/peer", {
 				from: accOne,
 				gas: 860000 // costly :((
 			}).catch((err) => {
@@ -170,7 +170,7 @@ contract('ADXExchange', function(accounts) {
 	})
 
 	it("can place a bid", function() {
-		return adxExchange.placeBid(adunitId, 100, 50 * 10000, 0, {
+		return adxExchange.placeBid(adunitId, 100, 50 * 10000, 0, "https://advertiser.com/peer", {
 			from: accTwo,
 			gas: 860000 // costly :((
 		}).then(function(res) {
@@ -183,6 +183,7 @@ contract('ADXExchange', function(accounts) {
 			assert.equal(ev.args.target, 100)
 			assert.equal(ev.args.rewardAmount, 50 * 10000)
 			assert.equal(ev.args.timeout, 0);
+			assert.equal(web3.toUtf8(ev.args.advertiserPeer), "https://advertiser.com/peer")
 
 			return adxToken.balanceOf(adxExchange.address)
 		}).then(function(bal) {
@@ -264,7 +265,7 @@ contract('ADXExchange', function(accounts) {
 	})
 
 	it("can place a second bid", function() {
-		return adxExchange.placeBid(adunitId, 1000, 50 * 10000, 0, {
+		return adxExchange.placeBid(adunitId, 1000, 50 * 10000, 0, "https://advertiser.com/peer", {
 			from: accTwo,
 			gas: 860000 // costly :((
 		}).then(function(res) {
@@ -297,7 +298,7 @@ contract('ADXExchange', function(accounts) {
 
 	it("can NOT accept a bid if you're not the publisher", function() {
 		return new Promise((resolve, reject) => {
-			adxExchange.acceptBid(2, adslotId, { from: accTwo, gas: 860000 })
+			adxExchange.acceptBid(2, adslotId, "https://publisher.com/peer", { from: accTwo, gas: 860000 })
 			.catch((err) => {
 				assert.equal(err.message, 'VM Exception while processing transaction: invalid opcode')
 				resolve()
@@ -309,7 +310,7 @@ contract('ADXExchange', function(accounts) {
 
 	it("can NOT accept a bid that does not exist", function() {
 		return new Promise((resolve, reject) => {
-			adxExchange.acceptBid(20, adslotId, {
+			adxExchange.acceptBid(20, adslotId, "https://publisher.com/peer", {
 		 		from: accThree,
 		 		gas: 860000
 		 	})
@@ -323,7 +324,7 @@ contract('ADXExchange', function(accounts) {
 
 	var acceptedTime;
 	it("can accept a bid", function() {
-	 	return adxExchange.acceptBid(2, adslotId, {
+	 	return adxExchange.acceptBid(2, adslotId, "https://publisher.com/peer", {
 	 		from: accThree,
 	 		gas: 860000
 	 	}).then(function(res) {
@@ -343,7 +344,7 @@ contract('ADXExchange', function(accounts) {
 
 	it("can NOT accept a bid once it's accepted", function() {
 		return new Promise((resolve, reject) => {
-			adxExchange.acceptBid(2, adslotId, {
+			adxExchange.acceptBid(2, adslotId, "https://publisher.com/peer", {
 		 		from: accThree,
 		 		gas: 860000
 		 	})
@@ -475,7 +476,7 @@ contract('ADXExchange', function(accounts) {
 	})
 	
 	it("can place a third bid with 300s timeout (and accept it)", function() {
-		return adxExchange.placeBid(adunitId, 1000, 40 * 10000, 300, {
+		return adxExchange.placeBid(adunitId, 1000, 40 * 10000, 300, "https://advertiser.com/peer", {
 			from: accTwo,
 			gas: 860000 // costly :((
 		}).then(function(res) {
@@ -488,12 +489,13 @@ contract('ADXExchange', function(accounts) {
 			assert.equal(ev.args.adunitIpfs, '0x4820000000000000000000000000000000000000000000000000000000000000')
 			assert.equal(ev.args.rewardAmount, 40 * 10000)
 			assert.equal(ev.args.timeout.toNumber(), 300)
+			assert.equal(web3.toUtf8(ev.args.advertiserPeer), "https://advertiser.com/peer")
 
 			return adxToken.balanceOf(adxExchange.address)
 		}).then(function(bal) {
 			assert.equal(bal.toNumber(), (50 /* from double-reward test */ + 40) * 10000)
 
-			return adxExchange.acceptBid(3, adslotId, {
+			return adxExchange.acceptBid(3, adslotId, "https://publisher.com/peer", {
 		 		from: accThree,
 		 		gas: 860000
 		 	})
@@ -505,7 +507,8 @@ contract('ADXExchange', function(accounts) {
 			assert.equal(ev.args.publisher, accThree)
 			assert.equal(ev.args.adslotId, adslotId)
 			assert.equal(ev.args.adslotIpfs, '0x4821000000000000000000000000000000000000000000000000000000000000')
-		
+			assert.equal(web3.toUtf8(ev.args.publisherPeer), "https://publisher.com/peer");
+
 			return adxToken.balanceOf(advWallet)
 		})
 		.then(function(bal) {
@@ -554,7 +557,7 @@ contract('ADXExchange', function(accounts) {
 			return adxToken.approve(adxExchange.address, 5 * 10000, { from: advWallet })
 		})
 		.then(function() {
-			return adxExchange.placeBid(adunitId, 1000, 5 * 10000, 0, {
+			return adxExchange.placeBid(adunitId, 1000, 5 * 10000, 0, "https://advertiser.com/peer", {
 				from: accTwo,
 				gas: 860000 // costly :((
 			})			
@@ -566,7 +569,7 @@ contract('ADXExchange', function(accounts) {
 			assert.equal(ev.args.bidId, 4)
 		})
 		.then(function(bal) {
-			return adxExchange.acceptBid(4, adslotId, {
+			return adxExchange.acceptBid(4, adslotId, "https://publisher.com/peer", {
 		 		from: accThree,
 		 		gas: 860000
 		 	})
@@ -678,16 +681,11 @@ contract('ADXExchange', function(accounts) {
 
 			assert.equal(res[5], adunitId)
 			assert.equal(res[6], '0x4820000000000000000000000000000000000000000000000000000000000000')
+			assert.equal(web3.toUtf8(res[7]), 'https://advertiser.com/peer')
 
-			assert.equal(res[7], adslotId)
-			assert.equal(res[8], '0x4821000000000000000000000000000000000000000000000000000000000000')
-		})
-	})
-
-	it("can get bid peers", function() {
-		return adxExchange.getBidPeers(2)
-		.then(function(res) {
-			assert.equal(res.length, 0)
+			assert.equal(res[8], adslotId)
+			assert.equal(res[9], '0x4821000000000000000000000000000000000000000000000000000000000000')
+			assert.equal(web3.toUtf8(res[10]), 'https://publisher.com/peer')
 		})
 	})
 })

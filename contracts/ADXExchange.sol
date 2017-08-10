@@ -56,12 +56,14 @@ contract ADXExchange is Ownable, Drainable {
 		address advertiserWallet;
 		uint adUnit;
 		bytes32 adUnitIpfs;
+		bytes32 advertiserPeer;
 
 		// Links on publisher side
 		address publisher;
 		address publisherWallet;
 		uint adSlot;
 		bytes32 adSlotIpfs;
+		bytes32 publisherPeer;
 
 		uint acceptedTime; // when was it accepted by a publisher
 
@@ -74,10 +76,6 @@ contract ADXExchange is Ownable, Drainable {
 		// XXX consider adding publisherSummary/advertiserSummary
 		bool confirmedByPublisher;
 		bool confirmedByAdvertiser;
-
-		// State channel peers
-		bytes32 publisherPeer;
-		bytes32 advertiserPeer;
 	}
 
 	//
@@ -127,7 +125,7 @@ contract ADXExchange is Ownable, Drainable {
 	// 
 
 	// the bid is placed by the advertiser
-	function placeBid(uint _adunitId, uint _target, uint _rewardAmount, uint _timeout)
+	function placeBid(uint _adunitId, uint _target, uint _rewardAmount, uint _timeout, bytes32 _peer)
 		onlyRegisteredAcc
 	{
 		bytes32 adIpfs;
@@ -157,12 +155,14 @@ contract ADXExchange is Ownable, Drainable {
 		bid.requiredPoints = _target;
 		bid.requiredExecTime = _timeout;
 
+		bid.advertiserPeer = _peer;
+
 		bidsById[bid.id] = bid;
 		bidsByAdunit[_adunitId].push(bid.id);
 
 		token.transferFrom(advertiserWallet, address(this), _rewardAmount);
 
-		LogBidOpened(bid.id, advertiser, _adunitId, adIpfs, _target, _rewardAmount, _timeout);
+		LogBidOpened(bid.id, advertiser, _adunitId, adIpfs, _target, _rewardAmount, _timeout, _peer);
 	}
 
 	// the bid is canceled by the advertiser
@@ -180,7 +180,7 @@ contract ADXExchange is Ownable, Drainable {
 	}
 
 	// a bid is accepted by a publisher for a given ad slot
-	function acceptBid(uint _bidId, uint _slotId) 
+	function acceptBid(uint _bidId, uint _slotId, bytes32 _peer) 
 		onlyRegisteredAcc 
 		onlyExistingBid(_bidId) 
 		onlyBidState(_bidId, BidState.Open)
@@ -208,11 +208,13 @@ contract ADXExchange is Ownable, Drainable {
 		bid.adSlot = _slotId;
 		bid.adSlotIpfs = adSlotIpfs;
 
+		bid.publisherPeer = _peer;
+
 		bid.acceptedTime = now;
 
 		bidsByAdslot[_slotId].push(_bidId);
 
-		LogBidAccepted(bid.id, publisher, _slotId, adSlotIpfs, bid.acceptedTime);
+		LogBidAccepted(bid.id, publisher, _slotId, adSlotIpfs, bid.acceptedTime, bid.publisherPeer);
 	}
 
 	// the bid is given up by the publisher, therefore canceling it and returning the funds to the advertiser
@@ -350,25 +352,25 @@ contract ADXExchange is Ownable, Drainable {
 		external
 		returns (
 			uint, uint, uint, uint, uint, 
-			//only ad slot and ad unit; everything else can be retrieved via the registry
-			uint, bytes32,
-			uint, bytes32
+			//only ad slot, ad unit; and peers everything else can be retrieved via the registry
+			uint, bytes32, bytes32,
+			uint, bytes32, bytes32
 		)
 	{
 		// TODO: others
 		var bid = bidsById[_bidId];
 		return (
 			uint(bid.state), bid.requiredPoints, bid.requiredExecTime, bid.amount, bid.acceptedTime,
-			bid.adUnit, bid.adUnitIpfs, 
-			bid.adSlot, bid.adSlotIpfs
+			bid.adUnit, bid.adUnitIpfs, bid.advertiserPeer,
+			bid.adSlot, bid.adSlotIpfs, bid.publisherPeer
 		);
 	}
 
 	//
 	// Events
 	//
-	event LogBidOpened(uint bidId, address advertiser, uint adunitId, bytes32 adunitIpfs, uint target, uint rewardAmount, uint timeout);
-	event LogBidAccepted(uint bidId, address publisher, uint adslotId, bytes32 adslotIpfs, uint acceptedTime);
+	event LogBidOpened(uint bidId, address advertiser, uint adunitId, bytes32 adunitIpfs, uint target, uint rewardAmount, uint timeout, bytes32 advertiserPeer);
+	event LogBidAccepted(uint bidId, address publisher, uint adslotId, bytes32 adslotIpfs, uint acceptedTime, bytes32 publisherPeer);
 	event LogBidCanceled(uint bidId);
 	event LogBidExpired(uint bidId);
 	event LogBidCompleted(uint bidId);
