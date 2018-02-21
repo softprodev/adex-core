@@ -232,6 +232,8 @@ contract ADXExchange is ADXExchangeInterface, Drainable {
 			bid.advertiserConfirmation = _report;
 		}
 
+		LogBidConfirmed(_bidId, msg.sender, _report);
+
 		if (bid.advertiserConfirmation != 0 && bid.publisherConfirmation != 0) {
 			bidStates[_bidId] = BidState.Completed;
 
@@ -261,9 +263,6 @@ contract ADXExchange is ADXExchangeInterface, Drainable {
 		require(token.transfer(msg.sender, _amount));
 	}
 
-	//
-	// Internals
-	//
 	function didSign(address addr, bytes32 hash, uint8 v, bytes32 r, bytes32 s, uint8 mode)
 		public
 		pure
