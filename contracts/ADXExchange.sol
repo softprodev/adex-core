@@ -151,13 +151,15 @@ contract ADXExchange is ADXExchangeInterface, Drainable {
 	}
 
 	// The bid is canceled by the advertiser
-	function cancelBid(bytes32 _adunit, uint _opened, uint _target, uint _amount, uint _timeout)
+	function cancelBid(bytes32 _adunit, uint _opened, uint _target, uint _amount, uint _timeout, uint8 v, bytes32 r, bytes32 s, uint8 sigMode)
 		public
 	{
 		// _opened acts as a nonce here
 		bytes32 bidId = getBidID(msg.sender, _adunit, _opened, _target, _amount, _timeout);
 
 		require(bidStates[bidId] == BidState.DoesNotExist);
+
+		require(didSign(msg.sender, bidId, v, r, s, sigMode));
 
 		bidStates[bidId] = BidState.Canceled;
 
@@ -310,7 +312,9 @@ contract ADXExchange is ADXExchangeInterface, Drainable {
 	{
 		return keccak256(
 			SCHEMA_HASH,
-			keccak256(_advertiser, _adunit, _opened, _target, _amount, _timeout, this)
+			keccak256(_advertiser, _adunit, _opened, _target, _amount, _timeout, address(this))
 		);
 	}
+
+
 }
