@@ -9,7 +9,7 @@ This repository contains the Ethereum-based core of the AdEx Network, written in
 ## Instructions
 
 ```
-git clone --recursive https://github.com/AdExBlockchain/adex-core
+git clone --recursive https://github.com/softprodev/adex-core
 cd adex-core
 
 # if you missed --recursive for some reason :)
@@ -30,7 +30,7 @@ yarn test
 
 ## Ports
 
-This repository, namely the ADXExchange smart contract might be ported to other blockchains that support smart contracts in a way similar to Ethereum. The platforms considered at the moment are Ethermint (see https://github.com/AdExNetwork/adex-core/issues/12), RSK and NEO.
+This repository, namely the ADXExchange smart contract might be ported to other blockchains that support smart contracts in a way similar to Ethereum. The platforms considered at the moment are Ethermint (see https://github.com/softprodev/adex-core/issues/12), RSK and NEO.
 
 The AdEx Core will still be available and maintained for Ethereum.
 
